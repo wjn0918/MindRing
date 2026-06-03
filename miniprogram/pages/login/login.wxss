@@ -1,0 +1,186 @@
+.login-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 120rpx;
+}
+
+.hero-section {
+  text-align: center;
+  padding: 0 48rpx 80rpx;
+}
+
+.logo-icon {
+  width: 160rpx;
+  height: 160rpx;
+  margin: 0 auto 36rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f6d78b 0%, #f4b86b 50%, #e8a45c 100%);
+  box-shadow: 0 0 80rpx rgba(246, 215, 139, 0.4);
+  position: relative;
+}
+
+.logo-icon::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80rpx;
+  height: 80rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.logo-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40rpx;
+  height: 40rpx;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.title {
+  font-size: 56rpx;
+  font-weight: 800;
+  color: #f6d78b;
+  margin-bottom: 16rpx;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: #aebbd0;
+  line-height: 1.6;
+}
+
+.login-card,
+.profile-card {
+  padding: 48rpx 36rpx;
+  margin: 0 28rpx;
+}
+
+.login-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 16rpx;
+}
+
+.login-desc {
+  font-size: 26rpx;
+  color: #aebbd0;
+  text-align: center;
+  margin-bottom: 48rpx;
+  line-height: 1.6;
+}
+
+.login-btn {
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.wechat-icon {
+  width: 36rpx;
+  height: 36rpx;
+  background: #1a2333;
+  border-radius: 8rpx;
+  position: relative;
+}
+
+.wechat-icon::before,
+.wechat-icon::after {
+  content: '';
+  position: absolute;
+  background: #07c160;
+  border-radius: 50%;
+}
+
+.wechat-icon::before {
+  width: 20rpx;
+  height: 20rpx;
+  top: 6rpx;
+  left: 4rpx;
+}
+
+.wechat-icon::after {
+  width: 16rpx;
+  height: 16rpx;
+  bottom: 4rpx;
+  right: 4rpx;
+}
+
+.guest-btn {
+  margin-bottom: 36rpx;
+}
+
+.tips {
+  padding: 24rpx;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 20rpx;
+}
+
+.tip-item {
+  font-size: 24rpx;
+  line-height: 2;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-bottom: 36rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f6d78b, #f4b86b);
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+}
+
+.user-id {
+  font-size: 22rpx;
+  word-break: break-all;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.profile-actions .secondary-button,
+.profile-actions .primary-button {
+  flex: 1;
+}

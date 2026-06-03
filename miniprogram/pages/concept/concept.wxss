@@ -53,14 +53,18 @@
 
 .concept-title {
   margin: 14rpx 0;
-  font-size: 46rpx;
+  font-size: 42rpx;
   font-weight: 800;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .concept-desc {
   color: #aebbd0;
   font-size: 27rpx;
-  line-height: 1.6;
+  line-height: 1.7;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .action-row {
@@ -133,9 +137,11 @@
 .timeline-content {
   margin-top: 16rpx;
   color: #eef4ff;
-  font-size: 30rpx;
-  line-height: 1.7;
+  font-size: 28rpx;
+  line-height: 1.8;
   white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .tag-row {
@@ -165,4 +171,67 @@
   justify-content: space-between;
   gap: 18rpx;
   margin-top: 16rpx;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  padding: 28rpx;
+  margin-bottom: 28rpx;
+}
+
+.filter-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  margin-bottom: 6rpx;
+}
+
+.filter-desc {
+  font-size: 24rpx;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.author-avatar {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.author-avatar .avatar-img {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+.author-avatar .avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f6d78b, #f4b86b);
+}
+
+.author-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #f6d78b;
+}
+
+.time-mood {
+  font-size: 24rpx;
+  color: #f6d78b;
 }

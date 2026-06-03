@@ -4,7 +4,8 @@
     "pages/concept/concept",
     "pages/insight/insight",
     "pages/calendar/calendar",
-    "pages/diff/diff"
+    "pages/diff/diff",
+    "pages/login/login"
   ],
   "window": {
     "navigationBarTitleText": "微光年轮",
@@ -26,6 +27,10 @@
       {
         "pagePath": "pages/calendar/calendar",
         "text": "日历"
+      },
+      {
+        "pagePath": "pages/login/login",
+        "text": "我的"
       }
     ]
   },

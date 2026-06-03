@@ -60,6 +60,8 @@ class InsightRead(BaseModel):
     id: int
     concept_id: int
     author_id: str
+    author_nickname: str | None
+    author_avatar_url: str | None
     content: str
     mood: str | None
     tags: list[str]

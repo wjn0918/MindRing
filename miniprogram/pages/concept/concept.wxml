@@ -22,6 +22,14 @@
     <button class="secondary-button action" bindtap="createPoster" disabled="{{insights.length === 0}}">分享海报</button>
   </view>
 
+  <view class="filter-row card" wx:if="{{concept.is_shared}}">
+    <view class="filter-label">
+      <view class="filter-title">显示范围</view>
+      <view class="filter-desc muted">{{onlyMine ? '只看自己的理解' : '显示所有人的理解'}}</view>
+    </view>
+    <switch checked="{{onlyMine}}" color="#f6d78b" bindchange="onFilterChange" />
+  </view>
+
   <view class="section-title">时间轴</view>
   <view wx:if="{{loading}}" class="empty muted">年轮正在浮现…</view>
   <view wx:elif="{{insights.length === 0}}" class="empty muted">还没有理解，记录下此刻的第一圈微光。</view>
@@ -30,8 +38,17 @@
       <view class="timeline-dot"></view>
       <view class="timeline-card card {{index === 0 ? 'latest' : ''}}">
         <view class="timeline-meta">
-          <text>{{item.dateLabel}}</text>
-          <text wx:if="{{item.mood}}"> · {{item.mood}}</text>
+          <view class="author-info">
+            <view class="author-avatar">
+              <view wx:if="{{item.author_avatar_url}}" class="avatar-img" style="background-image: url({{item.author_avatar_url}})"></view>
+              <view wx:else class="avatar-placeholder"></view>
+            </view>
+            <view class="author-name">{{item.author_nickname || '微光旅人'}}</view>
+          </view>
+          <view class="time-mood">
+            <text>{{item.dateLabel}}</text>
+            <text wx:if="{{item.mood}}"> · {{item.mood}}</text>
+          </view>
         </view>
         <view class="timeline-content">{{item.content}}</view>
         <view class="tag-row">

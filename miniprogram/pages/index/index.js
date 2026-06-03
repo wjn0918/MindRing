@@ -11,11 +11,56 @@ Page({
     loading: false,
     creating: false,
     user: app.globalData.user,
-    showPrivacy: !wx.getStorageSync('mindring_privacy_accepted')
+    isLoggedIn: false,
+    showPrivacy: !wx.getStorageSync('mindring_privacy_accepted'),
+    showSearch: false,
+    showCreate: false
   },
 
   onShow() {
+    this.checkLoginStatus()
     this.loadConcepts()
+  },
+
+  checkLoginStatus() {
+    const user = app.globalData.user
+    const isLoggedIn = user && user.id !== 'demo_user'
+    this.setData({ user, isLoggedIn })
+  },
+
+  goToLogin() {
+    wx.switchTab({ url: '/pages/login/login' })
+  },
+
+  goToProfile() {
+    wx.switchTab({ url: '/pages/login/login' })
+  },
+
+  // 搜索弹窗
+  openSearch() {
+    this.setData({ showSearch: true })
+  },
+
+  closeSearch() {
+    this.setData({ showSearch: false })
+  },
+
+  doSearch() {
+    this.closeSearch()
+    this.loadConcepts()
+  },
+
+  // 创建弹窗
+  openCreate() {
+    this.setData({ showCreate: true })
+  },
+
+  closeCreate() {
+    this.setData({ showCreate: false })
+  },
+
+  stopPropagation() {
+    // 阻止事件冒泡
   },
 
   onKeywordInput(event) {
@@ -78,7 +123,7 @@ Page({
         }))
         this.setData({ concepts: mapped })
       })
-      .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))
+      .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))   
       .finally(() => this.setData({ loading: false }))
   },
 
@@ -100,10 +145,15 @@ Page({
       }
     })
       .then((concept) => {
-        this.setData({ newConceptName: '', newConceptDescription: '', newConceptShared: false })
-        wx.navigateTo({ url: `/pages/concept/concept?id=${concept.id}` })
+        this.setData({ 
+          newConceptName: '', 
+          newConceptDescription: '', 
+          newConceptShared: false,
+          showCreate: false
+        })
+        wx.navigateTo({ url: `/pages/concept/concept?id=${concept.id}` })       
       })
-      .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))
+      .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))   
       .finally(() => this.setData({ creating: false }))
   },
 

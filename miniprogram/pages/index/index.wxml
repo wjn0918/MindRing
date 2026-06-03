@@ -1,31 +1,30 @@
 <view class="container home">
   <view class="hero card">
     <view class="user-row">
-      <view>
+      <view class="user-info-section">
         <view class="eyebrow">MindRing · 微光年轮</view>
         <view class="title">把每一次认知微光，养成一圈新的年轮。</view>
       </view>
-      <button class="login-button" bindtap="loginWithWechat">{{user.nickname || '微信登录'}}</button>
-    </view>
-    <view class="subtitle">记录概念、回看旧理解、看见自己如何慢慢改变。</view>
-  </view>
-
-  <view class="search-row">
-    <input class="input search-input" placeholder="搜索概念，如 第一性原理" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="loadConcepts" />
-    <button class="search-button" bindtap="loadConcepts">搜</button>
-  </view>
-
-  <view class="create card">
-    <input class="input" placeholder="新概念名称" value="{{newConceptName}}" bindinput="onConceptNameInput" />
-    <textarea class="textarea mini-textarea" placeholder="给它一句温柔的描述（可选）" value="{{newConceptDescription}}" bindinput="onConceptDescriptionInput" />
-    <view class="share-row">
-      <view>
-        <view class="share-title">共享这个概念</view>
-        <view class="share-copy muted">共享后，其他用户也可以围绕它留下自己的年轮记录。</view>
+      <view class="user-actions">
+        <view wx:if="{{isLoggedIn}}" class="user-avatar" bindtap="goToProfile">
+          <view wx:if="{{user.avatarUrl}}" class="avatar-img" style="background-image: url({{user.avatarUrl}})"></view>
+          <view wx:else class="avatar-placeholder"></view>
+        </view>
+        <button wx:else class="login-button" bindtap="goToLogin">登录</button>
       </view>
-      <switch checked="{{newConceptShared}}" color="#f6d78b" bindchange="onConceptSharedChange" />
     </view>
-    <button class="primary-button" loading="{{creating}}" bindtap="createConcept">创建概念</button>
+  </view>
+
+  <!-- 操作按钮区 -->
+  <view class="action-buttons">
+    <button class="action-btn search-btn" bindtap="openSearch">
+      <view class="btn-icon search-icon"></view>
+      <text>搜索概念</text>
+    </button>
+    <button class="action-btn create-btn" bindtap="openCreate">
+      <view class="btn-icon plus-icon"></view>
+      <text>创建概念</text>
+    </button>
   </view>
 
   <view class="section-title">我的概念</view>
@@ -43,6 +42,44 @@
   </view>
 </view>
 
+
+<!-- 搜索弹窗 -->
+<view wx:if="{{showSearch}}" class="modal-mask" bindtap="closeSearch">
+  <view class="modal-content card" catchtap="stopPropagation">
+    <view class="modal-header">
+      <view class="modal-title">搜索概念</view>
+      <view class="close-btn" bindtap="closeSearch">✕</view>
+    </view>
+    <view class="modal-body">
+      <view class="search-modal-row">
+        <input class="input search-modal-input" placeholder="搜索概念，如 第一性原理" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="doSearch" />
+        <button class="search-modal-button" bindtap="doSearch" loading="{{loading}}">搜索</button>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 创建概念弹窗 -->
+<view wx:if="{{showCreate}}" class="modal-mask" bindtap="closeCreate">
+  <view class="modal-content card" catchtap="stopPropagation">
+    <view class="modal-header">
+      <view class="modal-title">创建新概念</view>
+      <view class="close-btn" bindtap="closeCreate">✕</view>
+    </view>
+    <view class="modal-body">
+      <input class="input" placeholder="新概念名称" value="{{newConceptName}}" bindinput="onConceptNameInput" />
+      <textarea class="textarea mini-textarea" placeholder="给它一句温柔的描述（可选）" value="{{newConceptDescription}}" bindinput="onConceptDescriptionInput" />
+      <view class="share-row">
+        <view>
+          <view class="share-title">共享这个概念</view>
+          <view class="share-copy muted">共享后，其他用户也可以围绕它留下自己的年轮记录。</view>
+        </view>
+        <switch checked="{{newConceptShared}}" color="#f6d78b" bindchange="onConceptSharedChange" />
+      </view>
+      <button class="primary-button" loading="{{creating}}" bindtap="createConcept">创建概念</button>
+    </view>
+  </view>
+</view>
 
 <view wx:if="{{showPrivacy}}" class="privacy-mask">
   <view class="privacy-card card">

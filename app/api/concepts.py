@@ -33,11 +33,14 @@ def _split_tags(tags: str | None) -> list[str]:
     return [tag for tag in tags.split(",") if tag]
 
 
-def _insight_to_read(insight: Insight) -> InsightRead:
+def _insight_to_read(insight: Insight, db: Session) -> InsightRead:
+    author = db.get(User, insight.author_id)
     return InsightRead(
         id=insight.id,
         concept_id=insight.concept_id,
         author_id=insight.author_id,
+        author_nickname=author.nickname if author else None,
+        author_avatar_url=author.avatar_url if author else None,
         content=insight.content,
         mood=insight.mood,
         tags=_split_tags(insight.tags),
@@ -206,8 +209,8 @@ def create_insight(payload: InsightCreate, db: DbDep) -> InsightWithPrevious:
     db.refresh(insight)
     previous = db.get(Insight, previous_id) if previous_id else None
     return InsightWithPrevious(
-        **_insight_to_read(insight).model_dump(),
-        previous_insight=_insight_to_read(previous) if previous else None,
+        **_insight_to_read(insight, db).model_dump(),
+        previous_insight=_insight_to_read(previous, db) if previous else None,
     )
 
 
@@ -219,18 +222,24 @@ def list_concept_insights(
     order: str = Query(default="desc", pattern="^(asc|desc)$"),
     author_id: str | None = None,
     tag: str | None = None,
+    only_mine: bool = Query(default=True, description="Only show insights from current viewer"),
 ) -> list[InsightRead]:
     concept = _get_accessible_concept(db, concept_id, viewer_id)
     statement = select(Insight).where(Insight.concept_id == concept_id)
-    if author_id:
+    
+    # 应用过滤逻辑
+    if only_mine:
+        statement = statement.where(Insight.author_id == viewer_id)
+    elif author_id:
         statement = statement.where(Insight.author_id == author_id)
     elif not concept.is_shared:
         statement = statement.where(Insight.author_id == viewer_id)
+    
     if tag:
         statement = statement.where(Insight.tags.like(f"%{tag}%"))
     ordering = Insight.occurred_at.asc() if order == "asc" else Insight.occurred_at.desc()
     statement = statement.order_by(ordering)
-    return [_insight_to_read(insight) for insight in db.scalars(statement)]
+    return [_insight_to_read(insight, db) for insight in db.scalars(statement)]
 
 
 @router.get("/concepts/{concept_id}/timeline", response_model=list[InsightRead])
@@ -239,8 +248,9 @@ def get_timeline(
     db: DbDep,
     viewer_id: str,
     order: str = Query(default="asc", pattern="^(asc|desc)$"),
+    only_mine: bool = Query(default=True, description="Only show insights from current viewer"),
 ) -> list[InsightRead]:
-    return list_concept_insights(concept_id=concept_id, order=order, db=db, viewer_id=viewer_id)
+    return list_concept_insights(concept_id=concept_id, order=order, db=db, viewer_id=viewer_id, only_mine=only_mine)
 
 
 @router.get("/insights/diff", response_model=DiffResponse)
@@ -255,8 +265,8 @@ def diff_insights(left_id: int, right_id: int, viewer_id: str, db: DbDep) -> Dif
 
     diff = list(ndiff(left.content.splitlines(), right.content.splitlines()))
     return DiffResponse(
-        left=_insight_to_read(left),
-        right=_insight_to_read(right),
+        left=_insight_to_read(left, db),
+        right=_insight_to_read(right, db),
         added_lines=[line[2:] for line in diff if line.startswith("+ ")],
         removed_lines=[line[2:] for line in diff if line.startswith("- ")],
     )

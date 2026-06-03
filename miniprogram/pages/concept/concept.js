@@ -16,7 +16,8 @@ Page({
     insights: [],
     ringCircles: [64, 98, 132, 166, 200],
     loading: false,
-    canManage: false
+    canManage: false,
+    onlyMine: true
   },
 
   onLoad(options) {
@@ -39,7 +40,11 @@ Page({
   loadTimeline() {
     this.setData({ loading: true })
     request(`/api/concepts/${this.data.conceptId}/timeline`, {
-      query: { order: 'desc', viewer_id: app.globalData.user.id }
+      query: { 
+        order: 'desc', 
+        viewer_id: app.globalData.user.id,
+        only_mine: this.data.onlyMine
+      }
     })
       .then((insights) => {
         const mapped = insights.map((insight) => ({
@@ -52,6 +57,12 @@ Page({
       })
       .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))
       .finally(() => this.setData({ loading: false }))
+  },
+
+  onFilterChange(e) {
+    this.setData({ onlyMine: e.detail.value }, () => {
+      this.loadTimeline()
+    })
   },
 
   onSharedChange(event) {

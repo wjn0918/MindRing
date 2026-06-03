@@ -18,6 +18,8 @@
   border-radius: 22rpx;
   color: #dfe8f9;
   background: rgba(255, 255, 255, 0.06);
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .diff-grid {
@@ -28,9 +30,11 @@
 
 .diff-content {
   color: #eef4ff;
-  font-size: 28rpx;
-  line-height: 1.7;
+  font-size: 26rpx;
+  line-height: 1.8;
   white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .change-block {
@@ -56,8 +60,10 @@
 .change-line {
   margin-top: 10rpx;
   color: #9ae6b4;
-  font-size: 27rpx;
-  line-height: 1.6;
+  font-size: 26rpx;
+  line-height: 1.7;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .removed-line {

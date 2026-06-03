@@ -5,7 +5,7 @@ function getToken() {
 }
 
 function buildUrl(path, query) {
-  const baseUrl = app.globalData.apiBaseUrl.replace(/\/$/, '')
+  const baseUrl = app.globalData.apiBase
   const queryString = query
     ? Object.keys(query)
         .filter((key) => query[key] !== undefined && query[key] !== null && query[key] !== '')

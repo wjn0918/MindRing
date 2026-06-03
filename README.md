@@ -70,6 +70,32 @@ curl -X POST http://127.0.0.1:8000/api/insights \
   -d '{"concept_id":1,"author_id":"user_1","content":"从基本事实重新推导，而不是类比。","mood":"清醒","tags":["思维模型"]}'
 ```
 
+
+## 微信小程序前端
+
+本仓库已在 `miniprogram/` 下提供微信小程序 MVP 前端，可用微信开发者工具导入该目录。
+
+### 页面结构
+
+- `pages/index`：概念搜索、概念创建、微信登录入口与首次进入隐私保护指引。
+- `pages/concept`：概念详情、同心圆年轮视觉、倒序时间轴、添加理解、Diff 入口和分享海报文案生成。
+- `pages/insight`：极简输入页，支持内容、心境、标签和自定义记录日期。
+- `pages/calendar`：微光日历，展示用户在哪些日子留下过认知记录。
+- `pages/diff`：选择两个时间点的理解，并展示并排对比与新增/移除行。
+
+### 本地联调
+
+1. 启动后端：`uvicorn app.main:app --reload`。
+2. 使用微信开发者工具导入 `miniprogram/`。
+3. 如果后端地址不是 `http://127.0.0.1:8000`，请修改 `miniprogram/app.js` 中的 `apiBaseUrl`。
+4. 本地开发可在微信开发者工具中关闭合法域名校验；生产环境必须配置 HTTPS 合法域名。
+
+### 前端合规 TODO
+
+- 将首页弹窗替换为微信小程序正式隐私协议组件/协议内容。
+- 小程序端上传图片或生成海报图片前，需配合后端完成 `security.mediaCheckAsync`。
+- 用户订阅回顾提醒前，需先调用微信订阅消息授权，再调用 `/api/wechat/review-reminders`。
+
 ## 合规提醒
 
 微信小程序上线前必须完善：

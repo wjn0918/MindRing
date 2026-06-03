@@ -8,12 +8,12 @@ from app.core.config import get_settings
 
 settings = get_settings()
 engine_options = {"pool_pre_ping": True}
-if settings.database_url.startswith("sqlite"):
+if settings.sqlalchemy_database_url.startswith("sqlite"):
     engine_options["connect_args"] = {"check_same_thread": False}
-    if ":memory:" in settings.database_url:
+    if ":memory:" in settings.sqlalchemy_database_url:
         engine_options["poolclass"] = StaticPool
 
-engine = create_engine(settings.database_url, **engine_options)
+engine = create_engine(settings.sqlalchemy_database_url, **engine_options)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 

@@ -15,6 +15,7 @@ class Concept(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     creator_id: Mapped[str] = mapped_column(String(64), index=True)
     is_pinned: Mapped[bool] = mapped_column(default=False)
+    is_shared: Mapped[bool] = mapped_column(default=False, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

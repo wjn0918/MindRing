@@ -3,7 +3,7 @@
     <view class="user-row">
       <view>
         <view class="eyebrow">MindRing · 微光年轮</view>
-    <view class="title">把每一次认知微光，养成一圈新的年轮。</view>
+        <view class="title">把每一次认知微光，养成一圈新的年轮。</view>
       </view>
       <button class="login-button" bindtap="loginWithWechat">{{user.nickname || '微信登录'}}</button>
     </view>
@@ -18,6 +18,13 @@
   <view class="create card">
     <input class="input" placeholder="新概念名称" value="{{newConceptName}}" bindinput="onConceptNameInput" />
     <textarea class="textarea mini-textarea" placeholder="给它一句温柔的描述（可选）" value="{{newConceptDescription}}" bindinput="onConceptDescriptionInput" />
+    <view class="share-row">
+      <view>
+        <view class="share-title">共享这个概念</view>
+        <view class="share-copy muted">共享后，其他用户也可以围绕它留下自己的年轮记录。</view>
+      </view>
+      <switch checked="{{newConceptShared}}" color="#f6d78b" bindchange="onConceptSharedChange" />
+    </view>
     <button class="primary-button" loading="{{creating}}" bindtap="createConcept">创建概念</button>
   </view>
 
@@ -31,7 +38,7 @@
         <view wx:if="{{item.description}}" class="concept-description">{{item.description}}</view>
         <view wx:else class="concept-description muted">等待第一条年轮记录</view>
       </view>
-      <view class="concept-badge {{item.is_pinned ? 'pinned' : ''}}">{{item.is_pinned ? '置顶' : '年轮'}}</view>
+      <view class="concept-badge {{item.is_pinned ? 'pinned' : ''}}">{{item.visibilityLabel}}</view>
     </view>
   </view>
 </view>

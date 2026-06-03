@@ -7,7 +7,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.models import Concept, Insight
+from app.models import Concept, Insight, User
 from app.schemas import (
     CalendarDay,
     ConceptCreate,
@@ -18,6 +18,8 @@ from app.schemas import (
     InsightRead,
     InsightWithPrevious,
     SharePosterPayload,
+    UserCreate,
+    UserRead,
 )
 from app.services.content_safety import ContentSafetyService
 
@@ -46,12 +48,64 @@ def _insight_to_read(insight: Insight) -> InsightRead:
     )
 
 
+def _ensure_user(db: Session, user_id: str, nickname: str | None = None) -> User:
+    user = db.get(User, user_id)
+    if user is None:
+        user = User(id=user_id, nickname=nickname)
+        db.add(user)
+    elif nickname and not user.nickname:
+        user.nickname = nickname
+    return user
+
+
+def _can_access_concept(concept: Concept, user_id: str | None) -> bool:
+    return concept.is_shared or (user_id is not None and concept.creator_id == user_id)
+
+
+def _get_accessible_concept(db: Session, concept_id: int, user_id: str | None) -> Concept:
+    concept = db.get(Concept, concept_id)
+    if concept is None:
+        raise HTTPException(status_code=404, detail="Concept not found")
+    if not _can_access_concept(concept, user_id):
+        raise HTTPException(status_code=403, detail="Concept is private to its creator")
+    return concept
+
+
+def _assert_concept_owner(concept: Concept, operator_id: str) -> None:
+    if concept.creator_id != operator_id:
+        raise HTTPException(status_code=403, detail="Only the concept creator can update it")
+
+
+@router.post("/users", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+def upsert_user(payload: UserCreate, db: DbDep) -> User:
+    user = db.get(User, payload.id)
+    if user is None:
+        user = User(id=payload.id, nickname=payload.nickname, avatar_url=payload.avatar_url)
+        db.add(user)
+    else:
+        user.nickname = payload.nickname
+        user.avatar_url = payload.avatar_url
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@router.get("/users/{user_id}", response_model=UserRead)
+def get_user(user_id: str, db: DbDep) -> User:
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
 @router.post("/concepts", response_model=ConceptRead, status_code=status.HTTP_201_CREATED)
 def create_concept(payload: ConceptCreate, db: DbDep) -> Concept:
+    _ensure_user(db, payload.creator_id)
     concept = Concept(
         name=payload.name.strip(),
         description=payload.description,
         creator_id=payload.creator_id,
+        is_shared=payload.is_shared,
     )
     db.add(concept)
     try:
@@ -69,7 +123,9 @@ def create_concept(payload: ConceptCreate, db: DbDep) -> Concept:
 def search_concepts(
     db: DbDep,
     q: str | None = Query(default=None, description="Search by concept name or description"),
-    creator_id: str | None = None,
+    viewer_id: str | None = Query(default=None, description="Current user for data isolation"),
+    creator_id: str | None = Query(default=None, description="Optional owner filter"),
+    include_shared: bool = True,
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
 ) -> list[Concept]:
@@ -79,6 +135,13 @@ def search_concepts(
         statement = statement.where(or_(Concept.name.like(like), Concept.description.like(like)))
     if creator_id:
         statement = statement.where(Concept.creator_id == creator_id)
+    elif viewer_id:
+        access_filter = Concept.creator_id == viewer_id
+        if include_shared:
+            access_filter = or_(access_filter, Concept.is_shared.is_(True))
+        statement = statement.where(access_filter)
+    else:
+        statement = statement.where(Concept.is_shared.is_(True))
     statement = (
         statement.order_by(Concept.is_pinned.desc(), Concept.updated_at.desc())
         .limit(limit)
@@ -88,21 +151,17 @@ def search_concepts(
 
 
 @router.get("/concepts/{concept_id}", response_model=ConceptRead)
-def get_concept(concept_id: int, db: DbDep) -> Concept:
-    concept = db.get(Concept, concept_id)
-    if concept is None:
-        raise HTTPException(status_code=404, detail="Concept not found")
-    return concept
+def get_concept(concept_id: int, db: DbDep, viewer_id: str | None = None) -> Concept:
+    return _get_accessible_concept(db, concept_id, viewer_id)
 
 
 @router.patch("/concepts/{concept_id}", response_model=ConceptRead)
-def update_concept(
-    concept_id: int, payload: ConceptUpdate, db: DbDep
-) -> Concept:
+def update_concept(concept_id: int, payload: ConceptUpdate, db: DbDep) -> Concept:
     concept = db.get(Concept, concept_id)
     if concept is None:
         raise HTTPException(status_code=404, detail="Concept not found")
-    update_data = payload.model_dump(exclude_unset=True)
+    _assert_concept_owner(concept, payload.operator_id)
+    update_data = payload.model_dump(exclude={"operator_id"}, exclude_unset=True)
     for key, value in update_data.items():
         setattr(concept, key, value)
     db.commit()
@@ -112,9 +171,8 @@ def update_concept(
 
 @router.post("/insights", response_model=InsightWithPrevious, status_code=status.HTTP_201_CREATED)
 def create_insight(payload: InsightCreate, db: DbDep) -> InsightWithPrevious:
-    concept = db.get(Concept, payload.concept_id)
-    if concept is None:
-        raise HTTPException(status_code=404, detail="Concept not found")
+    _ensure_user(db, payload.author_id)
+    concept = _get_accessible_concept(db, payload.concept_id, payload.author_id)
 
     safety = ContentSafetyService().check_text(payload.content)
     if not safety.allowed:
@@ -128,8 +186,10 @@ def create_insight(payload: InsightCreate, db: DbDep) -> InsightWithPrevious:
             .order_by(Insight.occurred_at.desc(), Insight.id.desc())
             .limit(1)
         )
-    elif db.get(Insight, previous_id) is None:
-        raise HTTPException(status_code=404, detail="Previous insight not found")
+    else:
+        previous = db.get(Insight, previous_id)
+        if previous is None or previous.author_id != payload.author_id:
+            raise HTTPException(status_code=404, detail="Previous insight not found")
 
     insight = Insight(
         concept_id=payload.concept_id,
@@ -155,15 +215,17 @@ def create_insight(payload: InsightCreate, db: DbDep) -> InsightWithPrevious:
 def list_concept_insights(
     concept_id: int,
     db: DbDep,
+    viewer_id: str,
     order: str = Query(default="desc", pattern="^(asc|desc)$"),
     author_id: str | None = None,
     tag: str | None = None,
 ) -> list[InsightRead]:
-    if db.get(Concept, concept_id) is None:
-        raise HTTPException(status_code=404, detail="Concept not found")
+    concept = _get_accessible_concept(db, concept_id, viewer_id)
     statement = select(Insight).where(Insight.concept_id == concept_id)
     if author_id:
         statement = statement.where(Insight.author_id == author_id)
+    elif not concept.is_shared:
+        statement = statement.where(Insight.author_id == viewer_id)
     if tag:
         statement = statement.where(Insight.tags.like(f"%{tag}%"))
     ordering = Insight.occurred_at.asc() if order == "asc" else Insight.occurred_at.desc()
@@ -175,17 +237,21 @@ def list_concept_insights(
 def get_timeline(
     concept_id: int,
     db: DbDep,
+    viewer_id: str,
     order: str = Query(default="asc", pattern="^(asc|desc)$"),
 ) -> list[InsightRead]:
-    return list_concept_insights(concept_id=concept_id, order=order, db=db)
+    return list_concept_insights(concept_id=concept_id, order=order, db=db, viewer_id=viewer_id)
 
 
 @router.get("/insights/diff", response_model=DiffResponse)
-def diff_insights(left_id: int, right_id: int, db: DbDep) -> DiffResponse:
+def diff_insights(left_id: int, right_id: int, viewer_id: str, db: DbDep) -> DiffResponse:
     left = db.get(Insight, left_id)
     right = db.get(Insight, right_id)
     if left is None or right is None:
         raise HTTPException(status_code=404, detail="Insight not found")
+    if left.concept_id != right.concept_id:
+        raise HTTPException(status_code=400, detail="Insights belong to different concepts")
+    _get_accessible_concept(db, left.concept_id, viewer_id)
 
     diff = list(ndiff(left.content.splitlines(), right.content.splitlines()))
     return DiffResponse(

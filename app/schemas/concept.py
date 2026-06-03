@@ -3,15 +3,34 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class UserCreate(BaseModel):
+    id: str = Field(min_length=1, max_length=64)
+    nickname: str | None = Field(default=None, max_length=120)
+    avatar_url: str | None = Field(default=None, max_length=500)
+
+
+class UserRead(BaseModel):
+    id: str
+    nickname: str | None
+    avatar_url: str | None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ConceptCreate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     description: str | None = None
     creator_id: str = Field(min_length=1, max_length=64)
+    is_shared: bool = False
 
 
 class ConceptUpdate(BaseModel):
     description: str | None = None
     is_pinned: bool | None = None
+    is_shared: bool | None = None
+    operator_id: str = Field(min_length=1, max_length=64)
 
 
 class ConceptRead(BaseModel):
@@ -20,6 +39,7 @@ class ConceptRead(BaseModel):
     description: str | None
     creator_id: str
     is_pinned: bool
+    is_shared: bool
     created_at: datetime
     updated_at: datetime
 

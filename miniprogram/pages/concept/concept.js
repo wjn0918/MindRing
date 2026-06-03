@@ -1,4 +1,5 @@
 const { request } = require('../../utils/api')
+const app = getApp()
 
 function formatDate(value) {
   const date = new Date(value)
@@ -14,7 +15,8 @@ Page({
     concept: {},
     insights: [],
     ringCircles: [64, 98, 132, 166, 200],
-    loading: false
+    loading: false,
+    canManage: false
   },
 
   onLoad(options) {
@@ -29,14 +31,16 @@ Page({
   },
 
   loadConcept() {
-    request(`/api/concepts/${this.data.conceptId}`)
-      .then((concept) => this.setData({ concept }))
+    request(`/api/concepts/${this.data.conceptId}`, { query: { viewer_id: app.globalData.user.id } })
+      .then((concept) => this.setData({ concept, canManage: concept.creator_id === app.globalData.user.id }))
       .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))
   },
 
   loadTimeline() {
     this.setData({ loading: true })
-    request(`/api/concepts/${this.data.conceptId}/timeline`, { query: { order: 'desc' } })
+    request(`/api/concepts/${this.data.conceptId}/timeline`, {
+      query: { order: 'desc', viewer_id: app.globalData.user.id }
+    })
       .then((insights) => {
         const mapped = insights.map((insight) => ({
           ...insight,
@@ -48,6 +52,21 @@ Page({
       })
       .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))
       .finally(() => this.setData({ loading: false }))
+  },
+
+  onSharedChange(event) {
+    request(`/api/concepts/${this.data.conceptId}`, {
+      method: 'PATCH',
+      data: {
+        operator_id: app.globalData.user.id,
+        is_shared: event.detail.value
+      }
+    })
+      .then((concept) => {
+        this.setData({ concept })
+        wx.showToast({ title: concept.is_shared ? '已共享' : '已设为私密', icon: 'success' })
+      })
+      .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))
   },
 
   addInsight() {

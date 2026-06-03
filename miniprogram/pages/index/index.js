@@ -7,6 +7,7 @@ Page({
     concepts: [],
     newConceptName: '',
     newConceptDescription: '',
+    newConceptShared: false,
     loading: false,
     creating: false,
     user: app.globalData.user,
@@ -27,6 +28,10 @@ Page({
 
   onConceptDescriptionInput(event) {
     this.setData({ newConceptDescription: event.detail.value })
+  },
+
+  onConceptSharedChange(event) {
+    this.setData({ newConceptShared: event.detail.value })
   },
 
   acceptPrivacy() {
@@ -63,10 +68,16 @@ Page({
     request('/api/concepts', {
       query: {
         q: this.data.keyword,
-        creator_id: app.globalData.user.id
+        viewer_id: app.globalData.user.id
       }
     })
-      .then((concepts) => this.setData({ concepts }))
+      .then((concepts) => {
+        const mapped = concepts.map((concept) => ({
+          ...concept,
+          visibilityLabel: concept.is_shared ? '共享' : '私密'
+        }))
+        this.setData({ concepts: mapped })
+      })
       .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))
       .finally(() => this.setData({ loading: false }))
   },
@@ -84,11 +95,12 @@ Page({
       data: {
         name,
         description: this.data.newConceptDescription.trim(),
-        creator_id: app.globalData.user.id
+        creator_id: app.globalData.user.id,
+        is_shared: this.data.newConceptShared
       }
     })
       .then((concept) => {
-        this.setData({ newConceptName: '', newConceptDescription: '' })
+        this.setData({ newConceptName: '', newConceptDescription: '', newConceptShared: false })
         wx.navigateTo({ url: `/pages/concept/concept?id=${concept.id}` })
       })
       .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))

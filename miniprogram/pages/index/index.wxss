@@ -160,3 +160,23 @@
   font-size: 27rpx;
   line-height: 1.7;
 }
+
+
+.share-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-bottom: 20rpx;
+}
+
+.share-title {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.share-copy {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  line-height: 1.45;
+}

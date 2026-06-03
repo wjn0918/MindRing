@@ -146,3 +146,23 @@
   margin-top: 16rpx;
   font-size: 24rpx;
 }
+
+
+.visibility-pill {
+  display: inline-flex;
+  margin-top: 16rpx;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  color: #1a2333;
+  background: #f6d78b;
+  font-size: 23rpx;
+  font-weight: 700;
+}
+
+.visibility-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-top: 16rpx;
+}

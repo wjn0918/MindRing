@@ -8,6 +8,11 @@
       <view class="muted">正在生长的概念</view>
       <view class="concept-title glow-text">{{concept.name || '概念'}}</view>
       <view class="concept-desc">{{concept.description || '每一次理解，都是一圈新的纹理。'}}</view>
+      <view class="visibility-pill">{{concept.is_shared ? '共享概念' : '私密概念'}}</view>
+      <view wx:if="{{canManage}}" class="visibility-toggle">
+        <text class="muted">允许其他用户记录</text>
+        <switch checked="{{concept.is_shared}}" color="#f6d78b" bindchange="onSharedChange" />
+      </view>
     </view>
   </view>
 

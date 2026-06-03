@@ -8,6 +8,8 @@ from app.schemas.concept import (
     InsightRead,
     InsightWithPrevious,
     SharePosterPayload,
+    UserCreate,
+    UserRead,
 )
 
 __all__ = [
@@ -20,4 +22,6 @@ __all__ = [
     "InsightRead",
     "InsightWithPrevious",
     "SharePosterPayload",
+    "UserCreate",
+    "UserRead",
 ]

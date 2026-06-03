@@ -25,7 +25,7 @@ Page({
       return
     }
     this.setData({ loading: true })
-    request('/api/calendar')
+    request('/calendar')
       .then((days) => {
         const mapped = days
           .slice()

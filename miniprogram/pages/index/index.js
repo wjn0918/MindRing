@@ -90,7 +90,7 @@ Page({
       return
     }
     this.setData({ loading: true })
-    request('/api/concepts', {
+    request('/concepts', {
       query: {
         q: this.data.keyword
       }
@@ -110,7 +110,7 @@ Page({
     }
 
     this.setData({ creating: true })
-    request('/api/concepts', {
+    request('/concepts', {
       method: 'POST',
       data: {
         name,

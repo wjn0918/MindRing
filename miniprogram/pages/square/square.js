@@ -27,7 +27,7 @@ Page({
       return
     }
     this.setData({ loading: true })
-    request('/api/concepts/all', {
+    request('/concepts/all', {
       query: { q: this.data.keyword }
     })
       .then((concepts) => {

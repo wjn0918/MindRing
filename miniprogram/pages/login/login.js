@@ -35,7 +35,7 @@ Page({
         wx.login({
           success: (loginResult) => {
             // 第三步：将 code 和用户信息一起发送给后端
-            request('/api/wechat/login', {
+            request('/wechat/login', {
               method: 'POST',
               data: { 
                 code: loginResult.code,

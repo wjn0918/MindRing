@@ -51,7 +51,7 @@ Page({
     }
 
     this.setData({ submitting: true })
-    request('/api/insights', {
+    request('/insights', {
       method: 'POST',
       data: {
         concept_id: this.data.conceptId,

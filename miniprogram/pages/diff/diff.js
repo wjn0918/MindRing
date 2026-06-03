@@ -25,7 +25,7 @@ Page({
   },
 
   loadInsights() {
-    request(`/api/concepts/${this.data.conceptId}/insights`, {
+    request(`/concepts/${this.data.conceptId}/insights`, {
       query: { order: 'desc' }
     })
       .then((insights) => {
@@ -56,7 +56,7 @@ Page({
     }
 
     this.setData({ loadingDiff: true })
-    request('/api/insights/diff', {
+    request('/insights/diff', {
       query: { left_id: left.id, right_id: right.id }
     })
       .then((diff) => this.setData({ diff }))

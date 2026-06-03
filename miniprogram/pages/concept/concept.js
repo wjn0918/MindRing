@@ -32,7 +32,7 @@ Page({
   },
 
   loadConcept() {
-    request(`/api/concepts/${this.data.conceptId}`)
+    request(`/concepts/${this.data.conceptId}`)
       .then((concept) => {
         const user = app.globalData.user
         const canManage = user && concept.creator_id === user.id
@@ -43,7 +43,7 @@ Page({
 
   loadTimeline() {
     this.setData({ loading: true })
-    request(`/api/concepts/${this.data.conceptId}/timeline`, {
+    request(`/concepts/${this.data.conceptId}/timeline`, {
       query: { 
         order: 'desc', 
         only_mine: this.data.onlyMine
@@ -88,7 +88,7 @@ Page({
       return
     }
 
-    request('/api/share-posters', {
+    request('/share-posters', {
       method: 'POST',
       data: {
         concept_name: this.data.concept.name,

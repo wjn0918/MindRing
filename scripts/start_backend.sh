@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BACKEND_DIR="$ROOT_DIR/backend"
+BACKEND_DIR="$ROOT_DIR"
 PID_FILE="$BACKEND_DIR/.uvicorn.pid"
 LOG_FILE="$BACKEND_DIR/backend.log"
 

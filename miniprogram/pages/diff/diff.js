@@ -1,5 +1,4 @@
 const { request } = require('../../utils/api')
-const app = getApp()
 
 function formatDate(value) {
   const date = new Date(value)
@@ -27,7 +26,7 @@ Page({
 
   loadInsights() {
     request(`/api/concepts/${this.data.conceptId}/insights`, {
-      query: { order: 'desc', viewer_id: app.globalData.user.id }
+      query: { order: 'desc' }
     })
       .then((insights) => {
         const labels = insights.map((insight) => `${formatDate(insight.occurred_at)} · ${insight.mood || '未标注心境'}`)
@@ -58,7 +57,7 @@ Page({
 
     this.setData({ loadingDiff: true })
     request('/api/insights/diff', {
-      query: { left_id: left.id, right_id: right.id, viewer_id: app.globalData.user.id }
+      query: { left_id: left.id, right_id: right.id }
     })
       .then((diff) => this.setData({ diff }))
       .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))

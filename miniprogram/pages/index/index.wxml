@@ -2,8 +2,8 @@
   <view class="hero card">
     <view class="user-row">
       <view class="user-info-section">
-        <view class="eyebrow">MindRing · 微光年轮</view>
-        <view class="title">把每一次认知微光，养成一圈新的年轮。</view>
+        <view class="eyebrow">MindRing · 我的概念</view>
+        <view class="title">记录你的认知成长</view>
       </view>
       <view class="user-actions">
         <view wx:if="{{isLoggedIn}}" class="user-avatar" bindtap="goToProfile">
@@ -28,7 +28,7 @@
   </view>
 
   <view class="section-title">我的概念</view>
-  <view wx:if="{{loading}}" class="empty muted">正在寻找微光…</view>
+  <view wx:if="{{loading}}" class="empty muted">正在寻找微光...</view>
   <view wx:elif="{{concepts.length === 0}}" class="empty muted">还没有概念，先写下一个正在萦绕你的词。</view>
   <view wx:else class="concept-list">
     <view wx:for="{{concepts}}" wx:key="id" class="concept-card card" data-id="{{item.id}}" bindtap="openConcept">
@@ -37,7 +37,6 @@
         <view wx:if="{{item.description}}" class="concept-description">{{item.description}}</view>
         <view wx:else class="concept-description muted">等待第一条年轮记录</view>
       </view>
-      <view class="concept-badge {{item.is_pinned ? 'pinned' : ''}}">{{item.visibilityLabel}}</view>
     </view>
   </view>
 </view>
@@ -69,13 +68,6 @@
     <view class="modal-body">
       <input class="input" placeholder="新概念名称" value="{{newConceptName}}" bindinput="onConceptNameInput" />
       <textarea class="textarea mini-textarea" placeholder="给它一句温柔的描述（可选）" value="{{newConceptDescription}}" bindinput="onConceptDescriptionInput" />
-      <view class="share-row">
-        <view>
-          <view class="share-title">共享这个概念</view>
-          <view class="share-copy muted">共享后，其他用户也可以围绕它留下自己的年轮记录。</view>
-        </view>
-        <switch checked="{{newConceptShared}}" color="#f6d78b" bindchange="onConceptSharedChange" />
-      </view>
       <button class="primary-button" loading="{{creating}}" bindtap="createConcept">创建概念</button>
     </view>
   </view>

@@ -5,7 +5,8 @@
     "pages/insight/insight",
     "pages/calendar/calendar",
     "pages/diff/diff",
-    "pages/login/login"
+    "pages/login/login",
+    "pages/square/square"
   ],
   "window": {
     "navigationBarTitleText": "微光年轮",
@@ -22,7 +23,11 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "概念"
+        "text": "我的"
+      },
+      {
+        "pagePath": "pages/square/square",
+        "text": "广场"
       },
       {
         "pagePath": "pages/calendar/calendar",
@@ -30,7 +35,7 @@
       },
       {
         "pagePath": "pages/login/login",
-        "text": "我的"
+        "text": "账户"
       }
     ]
   },

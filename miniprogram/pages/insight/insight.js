@@ -1,5 +1,4 @@
 const { request } = require('../../utils/api')
-const app = getApp()
 
 function today() {
   const date = new Date()
@@ -16,6 +15,7 @@ Page({
     mood: '',
     tagText: '',
     occurredDate: today(),
+    isShared: false,
     submitting: false
   },
 
@@ -39,6 +39,10 @@ Page({
     this.setData({ occurredDate: event.detail.value })
   },
 
+  onSharedChange(event) {
+    this.setData({ isShared: event.detail.value })
+  },
+
   submitInsight() {
     const content = this.data.content.trim()
     if (!content) {
@@ -51,13 +55,13 @@ Page({
       method: 'POST',
       data: {
         concept_id: this.data.conceptId,
-        author_id: app.globalData.user.id,
         content,
         mood: this.data.mood.trim(),
         tags: this.data.tagText
           .split(/[,，]/)
           .map((tag) => tag.trim())
           .filter((tag) => tag),
+        is_shared: this.data.isShared,
         occurred_at: `${this.data.occurredDate}T12:00:00+00:00`
       }
     })

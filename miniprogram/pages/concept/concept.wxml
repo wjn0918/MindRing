@@ -8,11 +8,6 @@
       <view class="muted">正在生长的概念</view>
       <view class="concept-title glow-text">{{concept.name || '概念'}}</view>
       <view class="concept-desc">{{concept.description || '每一次理解，都是一圈新的纹理。'}}</view>
-      <view class="visibility-pill">{{concept.is_shared ? '共享概念' : '私密概念'}}</view>
-      <view wx:if="{{canManage}}" class="visibility-toggle">
-        <text class="muted">允许其他用户记录</text>
-        <switch checked="{{concept.is_shared}}" color="#f6d78b" bindchange="onSharedChange" />
-      </view>
     </view>
   </view>
 
@@ -22,10 +17,10 @@
     <button class="secondary-button action" bindtap="createPoster" disabled="{{insights.length === 0}}">分享海报</button>
   </view>
 
-  <view class="filter-row card" wx:if="{{concept.is_shared}}">
+  <view class="filter-row card">
     <view class="filter-label">
       <view class="filter-title">显示范围</view>
-      <view class="filter-desc muted">{{onlyMine ? '只看自己的理解' : '显示所有人的理解'}}</view>
+      <view class="filter-desc muted">{{onlyMine ? '只看自己的理解' : '显示所有人的共享理解'}}</view>
     </view>
     <switch checked="{{onlyMine}}" color="#f6d78b" bindchange="onFilterChange" />
   </view>
@@ -44,6 +39,7 @@
               <view wx:else class="avatar-placeholder"></view>
             </view>
             <view class="author-name">{{item.author_nickname || '微光旅人'}}</view>
+            <view wx:if="{{item.is_shared}}" class="shared-badge">共享</view>
           </view>
           <view class="time-mood">
             <text>{{item.dateLabel}}</text>

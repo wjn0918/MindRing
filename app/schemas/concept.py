@@ -4,13 +4,14 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class UserCreate(BaseModel):
-    id: str = Field(min_length=1, max_length=64)
+    openid: str = Field(min_length=1, max_length=64)
     nickname: str | None = Field(default=None, max_length=120)
     avatar_url: str | None = Field(default=None, max_length=500)
 
 
 class UserRead(BaseModel):
-    id: str
+    id: int
+    openid: str
     nickname: str | None
     avatar_url: str | None
     created_at: datetime
@@ -19,27 +20,30 @@ class UserRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "Bearer"
+    user: UserRead
+
+
 class ConceptCreate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     description: str | None = None
-    creator_id: str = Field(min_length=1, max_length=64)
-    is_shared: bool = False
+    creator_id: int
 
 
 class ConceptUpdate(BaseModel):
     description: str | None = None
     is_pinned: bool | None = None
-    is_shared: bool | None = None
-    operator_id: str = Field(min_length=1, max_length=64)
+    operator_id: int
 
 
 class ConceptRead(BaseModel):
     id: int
     name: str
     description: str | None
-    creator_id: str
+    creator_id: int
     is_pinned: bool
-    is_shared: bool
     created_at: datetime
     updated_at: datetime
 
@@ -48,10 +52,11 @@ class ConceptRead(BaseModel):
 
 class InsightCreate(BaseModel):
     concept_id: int
-    author_id: str = Field(min_length=1, max_length=64)
+    author_id: int
     content: str = Field(min_length=1)
     mood: str | None = Field(default=None, max_length=80)
     tags: list[str] = Field(default_factory=list)
+    is_shared: bool = False
     occurred_at: datetime | None = None
     previous_insight_id: int | None = None
 
@@ -59,12 +64,13 @@ class InsightCreate(BaseModel):
 class InsightRead(BaseModel):
     id: int
     concept_id: int
-    author_id: str
+    author_id: int
     author_nickname: str | None
     author_avatar_url: str | None
     content: str
     mood: str | None
     tags: list[str]
+    is_shared: bool
     previous_insight_id: int | None
     occurred_at: datetime
     created_at: datetime

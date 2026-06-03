@@ -25,7 +25,8 @@
 
 .form .input,
 .form .textarea,
-.date-row {
+.date-row,
+.share-row {
   margin-bottom: 22rpx;
 }
 
@@ -45,4 +46,22 @@
   border-radius: 999rpx;
   color: #f6d78b;
   background: rgba(246, 215, 139, 0.1);
+}
+
+.share-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.share-title {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.share-copy {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  line-height: 1.45;
 }

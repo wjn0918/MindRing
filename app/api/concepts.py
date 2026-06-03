@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
+from app.core.auth import get_current_user
 from app.db.session import get_db
 from app.models import Concept, Insight, User
 from app.schemas import (
@@ -18,13 +19,13 @@ from app.schemas import (
     InsightRead,
     InsightWithPrevious,
     SharePosterPayload,
-    UserCreate,
     UserRead,
 )
 from app.services.content_safety import ContentSafetyService
 
 router = APIRouter(prefix="/api", tags=["mindring"])
 DbDep = Annotated[Session, Depends(get_db)]
+CurrentUserDep = Annotated[User, Depends(get_current_user)]
 
 
 def _split_tags(tags: str | None) -> list[str]:
@@ -44,6 +45,7 @@ def _insight_to_read(insight: Insight, db: Session) -> InsightRead:
         content=insight.content,
         mood=insight.mood,
         tags=_split_tags(insight.tags),
+        is_shared=insight.is_shared,
         previous_insight_id=insight.previous_insight_id,
         occurred_at=insight.occurred_at,
         created_at=insight.created_at,
@@ -51,64 +53,40 @@ def _insight_to_read(insight: Insight, db: Session) -> InsightRead:
     )
 
 
-def _ensure_user(db: Session, user_id: str, nickname: str | None = None) -> User:
-    user = db.get(User, user_id)
-    if user is None:
-        user = User(id=user_id, nickname=nickname)
-        db.add(user)
-    elif nickname and not user.nickname:
-        user.nickname = nickname
-    return user
+def _can_access_insight(insight: Insight, user: User) -> bool:
+    return insight.is_shared or insight.author_id == user.id
 
 
-def _can_access_concept(concept: Concept, user_id: str | None) -> bool:
-    return concept.is_shared or (user_id is not None and concept.creator_id == user_id)
-
-
-def _get_accessible_concept(db: Session, concept_id: int, user_id: str | None) -> Concept:
+def _get_concept_or_404(db: Session, concept_id: int) -> Concept:
     concept = db.get(Concept, concept_id)
     if concept is None:
         raise HTTPException(status_code=404, detail="Concept not found")
-    if not _can_access_concept(concept, user_id):
-        raise HTTPException(status_code=403, detail="Concept is private to its creator")
     return concept
 
 
-def _assert_concept_owner(concept: Concept, operator_id: str) -> None:
-    if concept.creator_id != operator_id:
+def _assert_concept_owner(concept: Concept, user: User) -> None:
+    if concept.creator_id != user.id:
         raise HTTPException(status_code=403, detail="Only the concept creator can update it")
 
 
-@router.post("/users", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-def upsert_user(payload: UserCreate, db: DbDep) -> User:
-    user = db.get(User, payload.id)
-    if user is None:
-        user = User(id=payload.id, nickname=payload.nickname, avatar_url=payload.avatar_url)
-        db.add(user)
-    else:
-        user.nickname = payload.nickname
-        user.avatar_url = payload.avatar_url
-    db.commit()
-    db.refresh(user)
-    return user
-
-
-@router.get("/users/{user_id}", response_model=UserRead)
-def get_user(user_id: str, db: DbDep) -> User:
-    user = db.get(User, user_id)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+@router.get("/users/me", response_model=UserRead)
+def get_current_user_info(current_user: CurrentUserDep) -> User:
+    return current_user
 
 
 @router.post("/concepts", response_model=ConceptRead, status_code=status.HTTP_201_CREATED)
-def create_concept(payload: ConceptCreate, db: DbDep) -> Concept:
-    _ensure_user(db, payload.creator_id)
+def create_concept(payload: ConceptCreate, db: DbDep, current_user: CurrentUserDep) -> Concept:
+    # 检查概念名称是否已存在
+    existing_concept = db.execute(
+        select(Concept).where(Concept.name == payload.name.strip())
+    ).scalar_one_or_none()
+    if existing_concept:
+        raise HTTPException(status_code=409, detail="该概念已存在")
+    
     concept = Concept(
         name=payload.name.strip(),
         description=payload.description,
-        creator_id=payload.creator_id,
-        is_shared=payload.is_shared,
+        creator_id=current_user.id,
     )
     db.add(concept)
     try:
@@ -116,7 +94,7 @@ def create_concept(payload: ConceptCreate, db: DbDep) -> Concept:
     except Exception as exc:
         db.rollback()
         raise HTTPException(
-            status_code=409, detail="Concept already exists for this creator"
+            status_code=409, detail="该概念已存在"
         ) from exc
     db.refresh(concept)
     return concept
@@ -125,10 +103,9 @@ def create_concept(payload: ConceptCreate, db: DbDep) -> Concept:
 @router.get("/concepts", response_model=list[ConceptRead])
 def search_concepts(
     db: DbDep,
+    current_user: CurrentUserDep,
     q: str | None = Query(default=None, description="Search by concept name or description"),
-    viewer_id: str | None = Query(default=None, description="Current user for data isolation"),
-    creator_id: str | None = Query(default=None, description="Optional owner filter"),
-    include_shared: bool = True,
+    creator_id: int | None = Query(default=None, description="Optional owner filter"),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
 ) -> list[Concept]:
@@ -138,13 +115,9 @@ def search_concepts(
         statement = statement.where(or_(Concept.name.like(like), Concept.description.like(like)))
     if creator_id:
         statement = statement.where(Concept.creator_id == creator_id)
-    elif viewer_id:
-        access_filter = Concept.creator_id == viewer_id
-        if include_shared:
-            access_filter = or_(access_filter, Concept.is_shared.is_(True))
-        statement = statement.where(access_filter)
     else:
-        statement = statement.where(Concept.is_shared.is_(True))
+        # 默认只看自己的
+        statement = statement.where(Concept.creator_id == current_user.id)
     statement = (
         statement.order_by(Concept.is_pinned.desc(), Concept.updated_at.desc())
         .limit(limit)
@@ -153,17 +126,38 @@ def search_concepts(
     return list(db.scalars(statement))
 
 
+@router.get("/concepts/all", response_model=list[ConceptRead])
+def get_all_concepts(
+    db: DbDep,
+    current_user: CurrentUserDep,
+    q: str | None = Query(default=None, description="Search by concept name or description"),
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+) -> list[Concept]:
+    # 广场页面，显示所有概念
+    statement = select(Concept)
+    if q:
+        like = f"%{q}%"
+        statement = statement.where(or_(Concept.name.like(like), Concept.description.like(like)))
+    statement = (
+        statement.order_by(Concept.updated_at.desc())
+        .limit(limit)
+        .offset(offset)
+    )
+    return list(db.scalars(statement))
+
+
 @router.get("/concepts/{concept_id}", response_model=ConceptRead)
-def get_concept(concept_id: int, db: DbDep, viewer_id: str | None = None) -> Concept:
-    return _get_accessible_concept(db, concept_id, viewer_id)
+def get_concept(concept_id: int, db: DbDep, current_user: CurrentUserDep) -> Concept:
+    return _get_concept_or_404(db, concept_id)
 
 
 @router.patch("/concepts/{concept_id}", response_model=ConceptRead)
-def update_concept(concept_id: int, payload: ConceptUpdate, db: DbDep) -> Concept:
-    concept = db.get(Concept, concept_id)
-    if concept is None:
-        raise HTTPException(status_code=404, detail="Concept not found")
-    _assert_concept_owner(concept, payload.operator_id)
+def update_concept(
+    concept_id: int, payload: ConceptUpdate, db: DbDep, current_user: CurrentUserDep
+) -> Concept:
+    concept = _get_concept_or_404(db, concept_id)
+    _assert_concept_owner(concept, current_user)
     update_data = payload.model_dump(exclude={"operator_id"}, exclude_unset=True)
     for key, value in update_data.items():
         setattr(concept, key, value)
@@ -173,9 +167,10 @@ def update_concept(concept_id: int, payload: ConceptUpdate, db: DbDep) -> Concep
 
 
 @router.post("/insights", response_model=InsightWithPrevious, status_code=status.HTTP_201_CREATED)
-def create_insight(payload: InsightCreate, db: DbDep) -> InsightWithPrevious:
-    _ensure_user(db, payload.author_id)
-    concept = _get_accessible_concept(db, payload.concept_id, payload.author_id)
+def create_insight(
+    payload: InsightCreate, db: DbDep, current_user: CurrentUserDep
+) -> InsightWithPrevious:
+    concept = _get_concept_or_404(db, payload.concept_id)
 
     safety = ContentSafetyService().check_text(payload.content)
     if not safety.allowed:
@@ -185,21 +180,22 @@ def create_insight(payload: InsightCreate, db: DbDep) -> InsightWithPrevious:
     if previous_id is None:
         previous_id = db.scalar(
             select(Insight.id)
-            .where(Insight.concept_id == payload.concept_id, Insight.author_id == payload.author_id)
+            .where(Insight.concept_id == payload.concept_id, Insight.author_id == current_user.id)
             .order_by(Insight.occurred_at.desc(), Insight.id.desc())
             .limit(1)
         )
     else:
         previous = db.get(Insight, previous_id)
-        if previous is None or previous.author_id != payload.author_id:
+        if previous is None or previous.author_id != current_user.id:
             raise HTTPException(status_code=404, detail="Previous insight not found")
 
     insight = Insight(
         concept_id=payload.concept_id,
-        author_id=payload.author_id,
+        author_id=current_user.id,
         content=payload.content,
         mood=payload.mood,
         tags=",".join(tag.strip() for tag in payload.tags if tag.strip()) or None,
+        is_shared=payload.is_shared,
         previous_insight_id=previous_id,
         occurred_at=payload.occurred_at or datetime.now(UTC),
     )
@@ -218,22 +214,24 @@ def create_insight(payload: InsightCreate, db: DbDep) -> InsightWithPrevious:
 def list_concept_insights(
     concept_id: int,
     db: DbDep,
-    viewer_id: str,
+    current_user: CurrentUserDep,
     order: str = Query(default="desc", pattern="^(asc|desc)$"),
-    author_id: str | None = None,
+    author_id: int | None = None,
     tag: str | None = None,
     only_mine: bool = Query(default=True, description="Only show insights from current viewer"),
 ) -> list[InsightRead]:
-    concept = _get_accessible_concept(db, concept_id, viewer_id)
+    _get_concept_or_404(db, concept_id)
     statement = select(Insight).where(Insight.concept_id == concept_id)
     
     # 应用过滤逻辑
     if only_mine:
-        statement = statement.where(Insight.author_id == viewer_id)
-    elif author_id:
-        statement = statement.where(Insight.author_id == author_id)
-    elif not concept.is_shared:
-        statement = statement.where(Insight.author_id == viewer_id)
+        statement = statement.where(Insight.author_id == current_user.id)
+    else:
+        # 显示自己的 + 其他人共享的
+        access_filter = (Insight.author_id == current_user.id) | (Insight.is_shared == True)
+        statement = statement.where(access_filter)
+        if author_id:
+            statement = statement.where(Insight.author_id == author_id)
     
     if tag:
         statement = statement.where(Insight.tags.like(f"%{tag}%"))
@@ -246,22 +244,27 @@ def list_concept_insights(
 def get_timeline(
     concept_id: int,
     db: DbDep,
-    viewer_id: str,
+    current_user: CurrentUserDep,
     order: str = Query(default="asc", pattern="^(asc|desc)$"),
     only_mine: bool = Query(default=True, description="Only show insights from current viewer"),
 ) -> list[InsightRead]:
-    return list_concept_insights(concept_id=concept_id, order=order, db=db, viewer_id=viewer_id, only_mine=only_mine)
+    return list_concept_insights(
+        concept_id=concept_id, order=order, db=db, current_user=current_user, only_mine=only_mine
+    )
 
 
 @router.get("/insights/diff", response_model=DiffResponse)
-def diff_insights(left_id: int, right_id: int, viewer_id: str, db: DbDep) -> DiffResponse:
+def diff_insights(
+    left_id: int, right_id: int, db: DbDep, current_user: CurrentUserDep
+) -> DiffResponse:
     left = db.get(Insight, left_id)
     right = db.get(Insight, right_id)
     if left is None or right is None:
         raise HTTPException(status_code=404, detail="Insight not found")
     if left.concept_id != right.concept_id:
         raise HTTPException(status_code=400, detail="Insights belong to different concepts")
-    _get_accessible_concept(db, left.concept_id, viewer_id)
+    if not _can_access_insight(left, current_user) or not _can_access_insight(right, current_user):
+        raise HTTPException(status_code=403, detail="No access to one of the insights")
 
     diff = list(ndiff(left.content.splitlines(), right.content.splitlines()))
     return DiffResponse(
@@ -273,10 +276,10 @@ def diff_insights(left_id: int, right_id: int, viewer_id: str, db: DbDep) -> Dif
 
 
 @router.get("/calendar", response_model=list[CalendarDay])
-def get_calendar(user_id: str, db: DbDep) -> list[CalendarDay]:
+def get_calendar(db: DbDep, current_user: CurrentUserDep) -> list[CalendarDay]:
     rows = db.execute(
         select(func.date(Insight.occurred_at), func.count(Insight.id))
-        .where(Insight.author_id == user_id)
+        .where(Insight.author_id == current_user.id)
         .group_by(func.date(Insight.occurred_at))
         .order_by(func.date(Insight.occurred_at).asc())
     ).all()
@@ -284,7 +287,7 @@ def get_calendar(user_id: str, db: DbDep) -> list[CalendarDay]:
 
 
 @router.post("/share-posters")
-def create_share_poster(payload: SharePosterPayload) -> dict[str, str]:
+def create_share_poster(payload: SharePosterPayload, current_user: CurrentUserDep) -> dict[str, str]:
     # MVP returns structured poster copy; mini-program can render it as a canvas/card.
     title = f"我对「{payload.concept_name}」的新一圈年轮"
     subtitle = f"时间跨度：{payload.time_span}"

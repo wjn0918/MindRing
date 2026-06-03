@@ -7,10 +7,9 @@ Page({
     concepts: [],
     newConceptName: '',
     newConceptDescription: '',
-    newConceptShared: false,
     loading: false,
     creating: false,
-    user: app.globalData.user,
+    user: null,
     isLoggedIn: false,
     showPrivacy: !wx.getStorageSync('mindring_privacy_accepted'),
     showSearch: false,
@@ -24,7 +23,7 @@ Page({
 
   checkLoginStatus() {
     const user = app.globalData.user
-    const isLoggedIn = user && user.id !== 'demo_user'
+    const isLoggedIn = !!user
     this.setData({ user, isLoggedIn })
   },
 
@@ -52,6 +51,11 @@ Page({
 
   // 创建弹窗
   openCreate() {
+    if (!this.data.isLoggedIn) {
+      wx.showToast({ title: '请先登录', icon: 'none' })
+      wx.switchTab({ url: '/pages/login/login' })
+      return
+    }
     this.setData({ showCreate: true })
   },
 
@@ -75,55 +79,26 @@ Page({
     this.setData({ newConceptDescription: event.detail.value })
   },
 
-  onConceptSharedChange(event) {
-    this.setData({ newConceptShared: event.detail.value })
-  },
-
   acceptPrivacy() {
     wx.setStorageSync('mindring_privacy_accepted', true)
     this.setData({ showPrivacy: false })
   },
 
-  loginWithWechat() {
-    wx.login({
-      success: (loginResult) => {
-        request('/api/wechat/login', {
-          method: 'POST',
-          data: { code: loginResult.code }
-        })
-          .then((profile) => {
-            const user = {
-              id: profile.openid,
-              nickname: profile.nickname || this.data.user.nickname || '微光旅人',
-              avatarUrl: profile.avatar_url || ''
-            }
-            app.setUser(user)
-            this.setData({ user })
-            this.loadConcepts()
-            wx.showToast({ title: '已登录', icon: 'success' })
-          })
-          .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))
-      },
-      fail: () => wx.showToast({ title: '微信登录失败', icon: 'none' })
-    })
-  },
-
   loadConcepts() {
+    if (!this.data.isLoggedIn) {
+      this.setData({ loading: false, concepts: [] })
+      return
+    }
     this.setData({ loading: true })
     request('/api/concepts', {
       query: {
-        q: this.data.keyword,
-        viewer_id: app.globalData.user.id
+        q: this.data.keyword
       }
     })
       .then((concepts) => {
-        const mapped = concepts.map((concept) => ({
-          ...concept,
-          visibilityLabel: concept.is_shared ? '共享' : '私密'
-        }))
-        this.setData({ concepts: mapped })
+        this.setData({ concepts })
       })
-      .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))   
+      .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))
       .finally(() => this.setData({ loading: false }))
   },
 
@@ -139,21 +114,20 @@ Page({
       method: 'POST',
       data: {
         name,
-        description: this.data.newConceptDescription.trim(),
-        creator_id: app.globalData.user.id,
-        is_shared: this.data.newConceptShared
+        description: this.data.newConceptDescription.trim()
       }
     })
       .then((concept) => {
         this.setData({ 
           newConceptName: '', 
-          newConceptDescription: '', 
-          newConceptShared: false,
+          newConceptDescription: '',
           showCreate: false
         })
         wx.navigateTo({ url: `/pages/concept/concept?id=${concept.id}` })       
       })
-      .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))   
+      .catch((error) => {
+        wx.showToast({ title: error.message, icon: 'none' })
+      })
       .finally(() => this.setData({ creating: false }))
   },
 

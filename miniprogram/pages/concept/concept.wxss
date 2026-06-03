@@ -153,26 +153,6 @@
   font-size: 24rpx;
 }
 
-
-.visibility-pill {
-  display: inline-flex;
-  margin-top: 16rpx;
-  padding: 8rpx 18rpx;
-  border-radius: 999rpx;
-  color: #1a2333;
-  background: #f6d78b;
-  font-size: 23rpx;
-  font-weight: 700;
-}
-
-.visibility-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18rpx;
-  margin-top: 16rpx;
-}
-
 .filter-row {
   display: flex;
   align-items: center;
@@ -228,6 +208,14 @@
 .author-name {
   font-size: 26rpx;
   font-weight: 600;
+  color: #f6d78b;
+}
+
+.shared-badge {
+  font-size: 20rpx;
+  padding: 2rpx 10rpx;
+  background: rgba(246, 215, 139, 0.15);
+  border-radius: 8rpx;
   color: #f6d78b;
 }
 

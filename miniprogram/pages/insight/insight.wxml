@@ -14,6 +14,13 @@
         <view class="date-pill">{{occurredDate}}</view>
       </picker>
     </view>
+    <view class="share-row">
+      <view>
+        <view class="share-title">共享这条理解</view>
+        <view class="share-copy muted">共享后，其他人可以看到这条理解</view>
+      </view>
+      <switch checked="{{isShared}}" color="#f6d78b" bindchange="onSharedChange" />
+    </view>
     <button class="primary-button" loading="{{submitting}}" bindtap="submitInsight">生成一圈年轮</button>
   </view>
 </view>

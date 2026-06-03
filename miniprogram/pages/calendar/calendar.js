@@ -5,16 +5,27 @@ Page({
   data: {
     days: [],
     totalDays: 0,
-    loading: false
+    loading: false,
+    isLoggedIn: false
   },
 
   onShow() {
+    this.checkLoginStatus()
     this.loadCalendar()
   },
 
+  checkLoginStatus() {
+    const isLoggedIn = !!app.globalData.user
+    this.setData({ isLoggedIn })
+  },
+
   loadCalendar() {
+    if (!this.data.isLoggedIn) {
+      this.setData({ loading: false, days: [], totalDays: 0 })
+      return
+    }
     this.setData({ loading: true })
-    request('/api/calendar', { query: { user_id: app.globalData.user.id } })
+    request('/api/calendar')
       .then((days) => {
         const mapped = days
           .slice()

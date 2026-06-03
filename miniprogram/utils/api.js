@@ -1,5 +1,9 @@
 const app = getApp()
 
+function getToken() {
+  return wx.getStorageSync('mindring_token')
+}
+
 function buildUrl(path, query) {
   const baseUrl = app.globalData.apiBaseUrl.replace(/\/$/, '')
   const queryString = query
@@ -13,12 +17,14 @@ function buildUrl(path, query) {
 
 function request(path, options = {}) {
   return new Promise((resolve, reject) => {
+    const token = getToken()
     wx.request({
       url: buildUrl(path, options.query),
       method: options.method || 'GET',
       data: options.data,
       header: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
       },
       success(res) {
         if (res.statusCode >= 200 && res.statusCode < 300) {

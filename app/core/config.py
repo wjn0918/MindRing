@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     wechat_app_id: str | None = None
     wechat_app_secret: str | None = None
     enable_content_safety: bool = False
+    jwt_secret_key: str = "mindring-secret-key"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_hours: int = 24 * 30
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

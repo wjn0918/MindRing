@@ -3,7 +3,7 @@ const app = getApp()
 
 Page({
   data: {
-    user: app.globalData.user,
+    user: null,
     loading: false,
     isLoggedIn: false
   },
@@ -18,7 +18,7 @@ Page({
 
   checkLoginStatus() {
     const user = app.globalData.user
-    const isLoggedIn = user && user.id !== 'demo_user'
+    const isLoggedIn = !!user
     this.setData({ user, isLoggedIn })
   },
 
@@ -43,14 +43,13 @@ Page({
                 avatar_url: userInfo.avatarUrl
               }
             })
-              .then((profile) => {
-                const user = {
-                  id: profile.openid,
-                  nickname: profile.nickname || userInfo.nickName || '微光旅人',
-                  avatarUrl: profile.avatar_url || userInfo.avatarUrl || ''
-                }
-                app.setUser(user)
-                this.setData({ user, isLoggedIn: true, loading: false })
+              .then((response) => {
+                app.setAuth(response.access_token, response.user)
+                this.setData({ 
+                  user: response.user, 
+                  isLoggedIn: true, 
+                  loading: false 
+                })
                 wx.showToast({ title: '登录成功', icon: 'success' })
                 setTimeout(() => {
                   wx.switchTab({ url: '/pages/index/index' })
@@ -85,14 +84,8 @@ Page({
       content: '确定要退出登录吗？',
       success: (res) => {
         if (res.confirm) {
-          const guestUser = {
-            id: 'demo_user',
-            nickname: '微光旅人',
-            avatarUrl: ''
-          }
-          app.setUser(guestUser)
-          this.setData({ user: guestUser, isLoggedIn: false })
-          wx.removeStorageSync('mindring_user')
+          app.clearAuth()
+          this.setData({ user: null, isLoggedIn: false })
           wx.showToast({ title: '已退出', icon: 'success' })
         }
       }

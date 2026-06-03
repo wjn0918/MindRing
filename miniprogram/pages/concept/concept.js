@@ -32,8 +32,12 @@ Page({
   },
 
   loadConcept() {
-    request(`/api/concepts/${this.data.conceptId}`, { query: { viewer_id: app.globalData.user.id } })
-      .then((concept) => this.setData({ concept, canManage: concept.creator_id === app.globalData.user.id }))
+    request(`/api/concepts/${this.data.conceptId}`)
+      .then((concept) => {
+        const user = app.globalData.user
+        const canManage = user && concept.creator_id === user.id
+        this.setData({ concept, canManage })
+      })
       .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))
   },
 
@@ -42,7 +46,6 @@ Page({
     request(`/api/concepts/${this.data.conceptId}/timeline`, {
       query: { 
         order: 'desc', 
-        viewer_id: app.globalData.user.id,
         only_mine: this.data.onlyMine
       }
     })
@@ -65,22 +68,12 @@ Page({
     })
   },
 
-  onSharedChange(event) {
-    request(`/api/concepts/${this.data.conceptId}`, {
-      method: 'PATCH',
-      data: {
-        operator_id: app.globalData.user.id,
-        is_shared: event.detail.value
-      }
-    })
-      .then((concept) => {
-        this.setData({ concept })
-        wx.showToast({ title: concept.is_shared ? '已共享' : '已设为私密', icon: 'success' })
-      })
-      .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))
-  },
-
   addInsight() {
+    if (!app.globalData.user) {
+      wx.showToast({ title: '请先登录', icon: 'none' })
+      wx.switchTab({ url: '/pages/login/login' })
+      return
+    }
     wx.navigateTo({ url: `/pages/insight/insight?conceptId=${this.data.conceptId}` })
   },
 

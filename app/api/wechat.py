@@ -1,11 +1,14 @@
 from typing import Annotated
+from sqlalchemy import select
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from app.core.auth import create_access_token
 from app.db.session import get_db
 from app.models import User
+from app.schemas import LoginResponse, UserRead
 from app.services.wechat import WeChatService, WeChatUserProfile
 
 router = APIRouter(prefix="/api/wechat", tags=["wechat"])
@@ -19,24 +22,39 @@ class LoginPayload(BaseModel):
 
 
 class ReminderPayload(BaseModel):
-    user_id: str = Field(min_length=1)
+    user_id: int
     concept_id: int
 
 
-@router.post("/login", response_model=WeChatUserProfile)
-def login(payload: LoginPayload, db: DbDep) -> WeChatUserProfile:
+@router.post("/login", response_model=LoginResponse)
+def login(payload: LoginPayload, db: DbDep) -> LoginResponse:
     profile = WeChatService().login_with_code(payload.code)
-    user = db.get(User, profile.openid)
+    
+    # 根据 openid 查询用户
+    user = db.scalar(select(User).where(User.openid == profile.openid))
+    
     nickname = payload.nickname or profile.nickname
     avatar_url = payload.avatar_url or profile.avatar_url
+    
     if user is None:
-        user = User(id=profile.openid, nickname=nickname, avatar_url=avatar_url)
+        # 新用户
+        user = User(openid=profile.openid, nickname=nickname, avatar_url=avatar_url)
         db.add(user)
     else:
+        # 更新用户信息
         user.nickname = nickname or user.nickname
         user.avatar_url = avatar_url or user.avatar_url
+    
     db.commit()
-    return WeChatUserProfile(openid=user.id, nickname=user.nickname, avatar_url=user.avatar_url)
+    db.refresh(user)
+    
+    # 生成 JWT token
+    access_token = create_access_token(data={"user_id": user.id})
+    
+    return LoginResponse(
+        access_token=access_token,
+        user=UserRead.model_validate(user)
+    )
 
 
 @router.post("/review-reminders")

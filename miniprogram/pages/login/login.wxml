@@ -36,8 +36,12 @@
       </view>
       <view class="user-info">
         <view class="user-name-row">
-          <view class="user-name">{{user.nickname || '微光旅人'}}</view>
-          <button class="edit-name-button" bindtap="openNicknameEditor">修改</button>
+          <view class="user-name-wrap">
+            <view class="user-name">{{user.nickname || '微光旅人'}}</view>
+            <view class="edit-name-icon" bindtap="openNicknameEditor">
+              <view class="edit-name-pencil"></view>
+            </view>
+          </view>
         </view>
         <view class="user-id muted">ID: {{user.id}}</view>
       </view>

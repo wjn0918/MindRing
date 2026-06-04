@@ -16,7 +16,7 @@ if [[ -f "$PID_FILE" ]]; then
   fi
 fi
 
-nohup uvicorn app.main:app --host 127.0.0.1 --port 10002 >"$LOG_FILE" 2>&1 &
+nohup uvicorn app.main:app --host 127.0.0.1 --port 8001 >"$LOG_FILE" 2>&1 &
 NEW_PID=$!
 echo "$NEW_PID" > "$PID_FILE"
 

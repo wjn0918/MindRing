@@ -99,6 +99,10 @@ def update_current_user(
 ) -> User:
     update_data = payload.model_dump(exclude_unset=True)
     for key, value in update_data.items():
+        if key == "nickname" and value is not None:
+            value = value.strip()
+            if not value:
+                raise HTTPException(status_code=422, detail="Nickname cannot be empty")
         if key == "birth_date" and isinstance(value, str):
             from datetime import datetime
             try:

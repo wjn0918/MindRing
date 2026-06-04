@@ -1,0 +1,37 @@
+<view class="container diff-page">
+  <view class="selector card">
+    <view class="selector-title">选择两圈年轮</view>
+    <picker mode="selector" range="{{insightLabels}}" value="{{leftIndex}}" bindchange="onLeftChange">
+      <view class="picker-row">旧理解：{{insightLabels[leftIndex] || '请选择'}}</view>
+    </picker>
+    <picker mode="selector" range="{{insightLabels}}" value="{{rightIndex}}" bindchange="onRightChange">
+      <view class="picker-row">新理解：{{insightLabels[rightIndex] || '请选择'}}</view>
+    </picker>
+    <button class="primary-button" loading="{{loadingDiff}}" bindtap="loadDiff">查看变化</button>
+  </view>
+
+  <view wx:if="{{diff}}" class="diff-grid">
+    <view class="diff-card card">
+      <view class="diff-title">旧理解</view>
+      <view class="diff-content">{{diff.left.content}}</view>
+    </view>
+    <view class="diff-card card">
+      <view class="diff-title glow-text">新理解</view>
+      <view class="diff-content">{{diff.right.content}}</view>
+    </view>
+  </view>
+
+  <view wx:if="{{diff}}" class="changes card">
+    <view class="changes-title">认知变化</view>
+    <view class="change-block">
+      <view class="change-label added">新增</view>
+      <view wx:for="{{diff.added_lines}}" wx:key="*this" class="change-line">+ {{item}}</view>
+      <view wx:if="{{diff.added_lines.length === 0}}" class="muted">没有新增行</view>
+    </view>
+    <view class="change-block">
+      <view class="change-label removed">移除</view>
+      <view wx:for="{{diff.removed_lines}}" wx:key="*this" class="change-line removed-line">- {{item}}</view>
+      <view wx:if="{{diff.removed_lines.length === 0}}" class="muted">没有移除行</view>
+    </view>
+  </view>
+</view>

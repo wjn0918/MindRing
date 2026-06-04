@@ -1,0 +1,34 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/concept/concept",
+    "pages/insight/insight",
+    "pages/calendar/calendar",
+    "pages/diff/diff"
+  ],
+  "window": {
+    "navigationBarTitleText": "微光年轮",
+    "navigationBarBackgroundColor": "#101826",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#101826",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#8d9bb2",
+    "selectedColor": "#f6d78b",
+    "backgroundColor": "#101826",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "概念"
+      },
+      {
+        "pagePath": "pages/calendar/calendar",
+        "text": "日历"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

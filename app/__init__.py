@@ -1,0 +1,1 @@
+"""MindRing FastAPI application package."""

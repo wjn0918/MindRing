@@ -1,0 +1,242 @@
+.home .hero {
+  padding: 42rpx 36rpx 34rpx;
+}
+
+.hero-top {
+  display: block;
+}
+
+.eyebrow {
+  margin-bottom: 18rpx;
+  color: #f6d78b;
+  font-size: 24rpx;
+  letter-spacing: 3rpx;
+}
+
+.title {
+  max-width: 620rpx;
+  font-size: 48rpx;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.subtitle {
+  margin-top: 20rpx;
+  color: #aebbd0;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+.account-panel {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-top: 30rpx;
+  padding: 22rpx;
+  border: 1rpx solid rgba(246, 215, 139, 0.14);
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.avatar-wrap {
+  flex: 0 0 84rpx;
+  width: 84rpx;
+  height: 84rpx;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 50%;
+}
+
+.avatar-fallback {
+  color: #1a2333;
+  background: linear-gradient(135deg, #f8df9c, #f4b86b);
+  font-size: 34rpx;
+  font-weight: 800;
+}
+
+.account-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.account-label {
+  color: #8d9bb2;
+  font-size: 22rpx;
+}
+
+.account-name {
+  overflow: hidden;
+  margin-top: 6rpx;
+  color: #edf3ff;
+  font-size: 30rpx;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-id {
+  overflow: hidden;
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.login-button {
+  flex: 0 0 136rpx;
+  width: 136rpx;
+  height: 64rpx;
+  margin: 0;
+  padding: 0;
+  border: 1rpx solid rgba(246, 215, 139, 0.3);
+  border-radius: 999rpx;
+  color: #f6d78b;
+  background: rgba(246, 215, 139, 0.08);
+  font-size: 24rpx;
+  line-height: 64rpx;
+}
+
+.search-row {
+  display: flex;
+  gap: 16rpx;
+  margin: 28rpx 0;
+}
+
+.search-input {
+  flex: 1;
+}
+
+.search-button {
+  width: 112rpx;
+  height: 88rpx;
+  border-radius: 24rpx;
+  color: #1a2333;
+  background: #f6d78b;
+  font-weight: 700;
+  line-height: 88rpx;
+}
+
+.create {
+  padding: 28rpx;
+}
+
+.create .input,
+.create .textarea {
+  margin-bottom: 20rpx;
+}
+
+.mini-textarea {
+  min-height: 148rpx;
+}
+
+.section-title {
+  margin: 36rpx 4rpx 20rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.empty {
+  padding: 48rpx 12rpx;
+  text-align: center;
+}
+
+.concept-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.concept-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx;
+}
+
+.concept-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.concept-name {
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.concept-description {
+  overflow: hidden;
+  margin-top: 12rpx;
+  color: #aebbd0;
+  font-size: 26rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.concept-badge {
+  margin-left: 20rpx;
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  color: #9fb1cc;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 22rpx;
+}
+
+.concept-badge.pinned {
+  color: #1a2333;
+  background: #f6d78b;
+}
+
+
+.privacy-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx;
+  background: rgba(5, 10, 18, 0.72);
+}
+
+.privacy-card {
+  padding: 36rpx;
+}
+
+.privacy-title {
+  margin-bottom: 18rpx;
+  font-size: 36rpx;
+  font-weight: 800;
+}
+
+.privacy-copy {
+  margin-bottom: 28rpx;
+  color: #aebbd0;
+  font-size: 27rpx;
+  line-height: 1.7;
+}
+
+
+.share-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-bottom: 20rpx;
+}
+
+.share-title {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.share-copy {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  line-height: 1.45;
+}

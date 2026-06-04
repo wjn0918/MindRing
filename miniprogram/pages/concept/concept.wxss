@@ -1,0 +1,168 @@
+.concept-header {
+  display: flex;
+  gap: 28rpx;
+  padding: 32rpx;
+}
+
+.ring-visual {
+  position: relative;
+  width: 210rpx;
+  height: 210rpx;
+  flex: 0 0 210rpx;
+}
+
+.ring-circle,
+.ring-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 2rpx solid rgba(246, 215, 139, 0.34);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ring-circle:nth-child(2n) {
+  border-color: rgba(126, 214, 223, 0.28);
+}
+
+.ring-core {
+  width: 34rpx;
+  height: 34rpx;
+  border: 0;
+  background: #f6d78b;
+  box-shadow: 0 0 42rpx rgba(246, 215, 139, 0.85);
+  animation: breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% {
+    opacity: 0.62;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.12);
+  }
+}
+
+.concept-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.concept-title {
+  margin: 14rpx 0;
+  font-size: 46rpx;
+  font-weight: 800;
+}
+
+.concept-desc {
+  color: #aebbd0;
+  font-size: 27rpx;
+  line-height: 1.6;
+}
+
+.action-row {
+  display: flex;
+  gap: 18rpx;
+  margin: 28rpx 0 36rpx;
+}
+
+.action {
+  flex: 1;
+}
+
+.section-title {
+  margin-bottom: 24rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.empty {
+  padding: 56rpx 0;
+  text-align: center;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 34rpx;
+}
+
+.timeline::before {
+  position: absolute;
+  top: 12rpx;
+  bottom: 40rpx;
+  left: 12rpx;
+  width: 2rpx;
+  background: linear-gradient(180deg, #f6d78b, rgba(246, 215, 139, 0.06));
+  content: '';
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 24rpx;
+}
+
+.timeline-dot {
+  position: absolute;
+  top: 34rpx;
+  left: -31rpx;
+  width: 24rpx;
+  height: 24rpx;
+  border: 4rpx solid #101826;
+  border-radius: 50%;
+  background: #f6d78b;
+  box-shadow: 0 0 28rpx rgba(246, 215, 139, 0.7);
+}
+
+.timeline-card {
+  padding: 28rpx;
+}
+
+.timeline-card.latest {
+  border-color: rgba(246, 215, 139, 0.42);
+  box-shadow: 0 0 54rpx rgba(246, 215, 139, 0.16);
+}
+
+.timeline-meta {
+  color: #f6d78b;
+  font-size: 24rpx;
+}
+
+.timeline-content {
+  margin-top: 16rpx;
+  color: #eef4ff;
+  font-size: 30rpx;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.tag-row {
+  margin-top: 14rpx;
+}
+
+.previous {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+}
+
+
+.visibility-pill {
+  display: inline-flex;
+  margin-top: 16rpx;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  color: #1a2333;
+  background: #f6d78b;
+  font-size: 23rpx;
+  font-weight: 700;
+}
+
+.visibility-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-top: 16rpx;
+}

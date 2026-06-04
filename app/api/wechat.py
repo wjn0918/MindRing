@@ -35,7 +35,7 @@ def login(payload: LoginPayload, db: DbDep) -> LoginResponse:
     # 根据 openid 查询用户
     user = db.scalar(select(User).where(User.openid == profile.openid))
     
-    nickname = payload.nickname or profile.nickname
+    nickname = (payload.nickname or profile.nickname or "").strip() or None
     avatar_url = payload.avatar_url or profile.avatar_url
     
     if user is None:
@@ -48,8 +48,9 @@ def login(payload: LoginPayload, db: DbDep) -> LoginResponse:
         )
         db.add(user)
     else:
-        # 更新用户信息
-        user.nickname = nickname or user.nickname
+        # 更新微信头像等登录资料，但不要用微信登录资料覆盖用户手动修改过的昵称
+        if not (user.nickname or "").strip() and nickname:
+            user.nickname = nickname
         user.avatar_url = avatar_url or user.avatar_url
         if payload.birth_date is not None:
             user.birth_date = payload.birth_date

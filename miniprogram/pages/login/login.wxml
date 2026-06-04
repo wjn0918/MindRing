@@ -31,11 +31,18 @@
   <view wx:else class="profile-card card">
     <view class="profile-header">
       <view class="avatar">
-        <view wx:if="{{user.avatarUrl}}" class="avatar-img" style="background-image: url({{user.avatarUrl}})"></view>
+        <view wx:if="{{user.avatar_url}}" class="avatar-img" style="background-image: url({{user.avatar_url}})"></view>
         <view wx:else class="avatar-placeholder"></view>
       </view>
       <view class="user-info">
-        <view class="user-name">{{user.nickname}}</view>
+        <view class="user-name-row">
+          <view class="user-name-wrap">
+            <view class="user-name">{{user.nickname || '微光旅人'}}</view>
+            <view class="edit-name-icon" bindtap="openNicknameEditor">
+              <view class="edit-name-pencil"></view>
+            </view>
+          </view>
+        </view>
         <view class="user-id muted">ID: {{user.id}}</view>
       </view>
     </view>
@@ -55,6 +62,25 @@
     <view class="profile-actions">
       <button class="secondary-button" bindtap="logout">退出登录</button>
       <button class="primary-button" bindtap="loginAnonymously">去首页</button>
+    </view>
+  </view>
+
+  <view wx:if="{{showNicknameEditor}}" class="modal-mask" bindtap="closeNicknameEditor">
+    <view class="nickname-modal card" catchtap="stopPropagation">
+      <view class="modal-title">修改昵称</view>
+      <view class="modal-desc">设置一个想展示给自己的名字，最长 120 个字符。</view>
+      <input
+        class="nickname-input"
+        value="{{nicknameDraft}}"
+        maxlength="120"
+        placeholder="请输入新的昵称"
+        focus="{{showNicknameEditor}}"
+        bindinput="onNicknameInput"
+      />
+      <view class="modal-actions">
+        <button class="secondary-button" bindtap="closeNicknameEditor" disabled="{{savingNickname}}">取消</button>
+        <button class="primary-button" bindtap="saveNickname" loading="{{savingNickname}}">保存</button>
+      </view>
     </view>
   </view>
 </view>

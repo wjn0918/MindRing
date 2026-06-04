@@ -23,7 +23,7 @@ class UserRead(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    nickname: str | None = Field(default=None, max_length=120)
+    nickname: str | None = Field(default=None, min_length=1, max_length=120)
     avatar_url: str | None = Field(default=None, max_length=500)
     birth_date: date | str | None = None
 

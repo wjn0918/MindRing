@@ -5,7 +5,10 @@ Page({
   data: {
     user: null,
     loading: false,
-    isLoggedIn: false
+    isLoggedIn: false,
+    showNicknameEditor: false,
+    nicknameDraft: '',
+    savingNickname: false
   },
 
   onLoad() {
@@ -84,6 +87,58 @@ Page({
 
   goToSetBirthdate() {
     wx.navigateTo({ url: '/pages/birthdate/birthdate' })
+  },
+
+  openNicknameEditor() {
+    const currentNickname = this.data.user && this.data.user.nickname ? this.data.user.nickname : ''
+    this.setData({
+      showNicknameEditor: true,
+      nicknameDraft: currentNickname
+    })
+  },
+
+  closeNicknameEditor() {
+    if (this.data.savingNickname) return
+    this.setData({
+      showNicknameEditor: false,
+      nicknameDraft: ''
+    })
+  },
+
+  stopPropagation() {
+    // 阻止弹窗内容点击时关闭弹窗
+  },
+
+  onNicknameInput(event) {
+    this.setData({ nicknameDraft: event.detail.value })
+  },
+
+  async saveNickname() {
+    const nickname = this.data.nicknameDraft.trim()
+    if (!nickname) {
+      wx.showToast({ title: '请输入昵称', icon: 'none' })
+      return
+    }
+
+    this.setData({ savingNickname: true })
+    try {
+      const updatedUser = await request('/users/me', {
+        method: 'PATCH',
+        data: { nickname }
+      })
+
+      app.setAuth(app.globalData.token, updatedUser)
+      this.setData({
+        user: updatedUser,
+        showNicknameEditor: false,
+        nicknameDraft: ''
+      })
+      wx.showToast({ title: '昵称已更新', icon: 'success' })
+    } catch (error) {
+      wx.showToast({ title: error.message || '保存失败', icon: 'none' })
+    } finally {
+      this.setData({ savingNickname: false })
+    }
   },
 
   loginAnonymously() {

@@ -8,7 +8,7 @@
       </view>
       <view class="user-actions">
         <view wx:if="{{isLoggedIn}}" class="user-avatar" bindtap="goToProfile">
-          <view wx:if="{{user.avatarUrl}}" class="avatar-img" style="background-image: url({{user.avatarUrl}})"></view>
+          <view wx:if="{{user.avatar_url}}" class="avatar-img" style="background-image: url({{user.avatar_url}})"></view>
           <view wx:else class="avatar-placeholder"></view>
         </view>
       </view>

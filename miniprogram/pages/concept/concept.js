@@ -9,6 +9,21 @@ function formatDate(value) {
   return `${year}.${month}.${day}`
 }
 
+function calculateAge(birthDate, targetDate) {
+  if (!birthDate) return null
+  const birth = new Date(birthDate)
+  const target = new Date(targetDate)
+  
+  let age = target.getFullYear() - birth.getFullYear()
+  const monthDiff = target.getMonth() - birth.getMonth()
+  
+  if (monthDiff < 0 || (monthDiff === 0 && target.getDate() < birth.getDate())) {
+    age--
+  }
+  
+  return age
+}
+
 Page({
   data: {
     conceptId: null,
@@ -17,7 +32,9 @@ Page({
     ringCircles: [64, 98, 132, 166, 200],
     loading: false,
     canManage: false,
-    onlyMine: true
+    onlyMine: true,
+    user: null,
+    isLoggedIn: false
   },
 
   onLoad(options) {
@@ -25,10 +42,17 @@ Page({
   },
 
   onShow() {
+    this.checkLoginStatus()
     if (this.data.conceptId) {
       this.loadConcept()
       this.loadTimeline()
     }
+  },
+
+  checkLoginStatus() {
+    const user = app.globalData.user
+    const isLoggedIn = app.isLoggedIn()
+    this.setData({ user, isLoggedIn })
   },
 
   loadConcept() {
@@ -43,6 +67,7 @@ Page({
 
   loadTimeline() {
     this.setData({ loading: true })
+    const user = app.globalData.user
     request(`/concepts/${this.data.conceptId}/timeline`, {
       query: { 
         order: 'desc', 
@@ -50,10 +75,18 @@ Page({
       }
     })
       .then((insights) => {
-        const mapped = insights.map((insight) => ({
-          ...insight,
-          dateLabel: formatDate(insight.occurred_at)
-        }))
+        const mapped = insights.map((insight) => {
+          let age = null
+          if (user && user.birth_date && 
+              user.id === insight.author_id) {
+            age = calculateAge(user.birth_date, insight.occurred_at)
+          }
+          return {
+            ...insight,
+            dateLabel: formatDate(insight.occurred_at),
+            age: age
+          }
+        })
         const circles = [64, 98, 132, 166, 200, 234]
           .slice(0, Math.max(3, Math.min(6, mapped.length + 2)))
         this.setData({ insights: mapped, ringCircles: circles })
@@ -69,9 +102,7 @@ Page({
   },
 
   addInsight() {
-    if (!app.globalData.user) {
-      wx.showToast({ title: '请先登录', icon: 'none' })
-      wx.switchTab({ url: '/pages/login/login' })
+    if (!app.requireLogin()) {
       return
     }
     wx.navigateTo({ url: `/pages/insight/insight?conceptId=${this.data.conceptId}` })
@@ -103,6 +134,77 @@ Page({
         })
       })
       .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))
+  },
+
+  showActionMenu(e) {
+    const insight = e.currentTarget.dataset.insight
+    const that = this
+    const itemList = []
+    itemList.push(insight.is_shared ? '取消共享' : '共享')
+    itemList.push('编辑')
+    itemList.push('删除')
+    
+    wx.showActionSheet({
+      itemList,
+      success(res) {
+        if (res.tapIndex === 0) {
+          // 切换共享
+          that.toggleShare(insight)
+        } else if (res.tapIndex === 1) {
+          // 编辑
+          wx.navigateTo({ url: `/pages/insight/insight?insightId=${insight.id}` })
+        } else if (res.tapIndex === 2) {
+          // 删除
+          that.deleteInsight(insight)
+        }
+      }
+    })
+  },
+
+  toggleShare(insight) {
+    wx.showLoading({ title: '处理中…' })
+    request(`/insights/${insight.id}`, {
+      method: 'PATCH',
+      data: { is_shared: !insight.is_shared }
+    })
+      .then(() => {
+        wx.showToast({ 
+          title: insight.is_shared ? '已取消共享' : '已共享', 
+          icon: 'success' 
+        })
+        this.loadTimeline()
+      })
+      .catch((error) => wx.showToast({ title: error.message, icon: 'none' }))
+      .finally(() => wx.hideLoading())
+  },
+
+  deleteInsight(insight) {
+    const that = this
+    wx.showModal({
+      title: '删除理解',
+      content: '确定要删除这一次理解吗？删除后无法恢复。',
+      confirmColor: '#ff4444',
+      success(res) {
+        if (res.confirm) {
+          wx.showLoading({ title: '删除中…' })
+          request(`/insights/${insight.id}`, {
+            method: 'DELETE'
+          })
+            .then(() => {
+              wx.showToast({ title: '删除成功', icon: 'success' })
+              setTimeout(() => wx.hideLoading(), 500)
+              setTimeout(() => {
+                // 刷新时间轴
+                that.loadTimeline()
+              }, 600)
+            })
+            .catch((error) => {
+              wx.hideLoading()
+              wx.showToast({ title: error.message, icon: 'none' })
+            })
+        }
+      }
+    })
   },
 
   onShareAppMessage() {

@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
-from app.core.auth import get_current_user
+from app.core.auth import get_current_user, get_optional_current_user
 from app.db.session import get_db
 from app.models import Concept, Insight, User
 from app.schemas import (
@@ -17,15 +17,18 @@ from app.schemas import (
     DiffResponse,
     InsightCreate,
     InsightRead,
+    InsightUpdate,
     InsightWithPrevious,
     SharePosterPayload,
     UserRead,
+    UserUpdate,
 )
 from app.services.content_safety import ContentSafetyService
 
 router = APIRouter(prefix="/api", tags=["mindring"])
 DbDep = Annotated[Session, Depends(get_db)]
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
+OptionalCurrentUserDep = Annotated[User | None, Depends(get_optional_current_user)]
 
 
 def _split_tags(tags: str | None) -> list[str]:
@@ -53,8 +56,22 @@ def _insight_to_read(insight: Insight, db: Session) -> InsightRead:
     )
 
 
-def _can_access_insight(insight: Insight, user: User) -> bool:
+def _can_access_insight(insight: Insight, user: User | None) -> bool:
+    if user is None:
+        return insight.is_shared
     return insight.is_shared or insight.author_id == user.id
+
+
+def _get_insight_or_404(db: Session, insight_id: int) -> Insight:
+    insight = db.get(Insight, insight_id)
+    if insight is None:
+        raise HTTPException(status_code=404, detail="Insight not found")
+    return insight
+
+
+def _assert_insight_owner(insight: Insight, user: User) -> None:
+    if insight.author_id != user.id:
+        raise HTTPException(status_code=403, detail="Only the insight author can modify it")
 
 
 def _get_concept_or_404(db: Session, concept_id: int) -> Concept:
@@ -71,6 +88,35 @@ def _assert_concept_owner(concept: Concept, user: User) -> None:
 
 @router.get("/users/me", response_model=UserRead)
 def get_current_user_info(current_user: CurrentUserDep) -> User:
+    return current_user
+
+
+@router.patch("/users/me", response_model=UserRead)
+def update_current_user(
+    payload: UserUpdate, 
+    db: DbDep, 
+    current_user: CurrentUserDep
+) -> User:
+    update_data = payload.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        if key == "birth_date" and isinstance(value, str):
+            from datetime import datetime
+            try:
+                value = datetime.strptime(value, "%Y-%m-%d").date()
+            except ValueError:
+                try:
+                    value = datetime.strptime(value, "%Y-%m").date()
+                except ValueError:
+                    try:
+                        value = datetime.strptime(value, "%Y").date()
+                    except ValueError:
+                        raise HTTPException(
+                            status_code=422, 
+                            detail="Invalid date format. Use YYYY-MM-DD, YYYY-MM, or YYYY"
+                        )
+        setattr(current_user, key, value)
+    db.commit()
+    db.refresh(current_user)
     return current_user
 
 
@@ -129,7 +175,7 @@ def search_concepts(
 @router.get("/concepts/all", response_model=list[ConceptRead])
 def get_all_concepts(
     db: DbDep,
-    current_user: CurrentUserDep,
+    current_user: OptionalCurrentUserDep,
     q: str | None = Query(default=None, description="Search by concept name or description"),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
@@ -148,7 +194,7 @@ def get_all_concepts(
 
 
 @router.get("/concepts/{concept_id}", response_model=ConceptRead)
-def get_concept(concept_id: int, db: DbDep, current_user: CurrentUserDep) -> Concept:
+def get_concept(concept_id: int, db: DbDep, current_user: OptionalCurrentUserDep) -> Concept:
     return _get_concept_or_404(db, concept_id)
 
 
@@ -158,7 +204,7 @@ def update_concept(
 ) -> Concept:
     concept = _get_concept_or_404(db, concept_id)
     _assert_concept_owner(concept, current_user)
-    update_data = payload.model_dump(exclude={"operator_id"}, exclude_unset=True)
+    update_data = payload.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(concept, key, value)
     db.commit()
@@ -214,7 +260,7 @@ def create_insight(
 def list_concept_insights(
     concept_id: int,
     db: DbDep,
-    current_user: CurrentUserDep,
+    current_user: OptionalCurrentUserDep,
     order: str = Query(default="desc", pattern="^(asc|desc)$"),
     author_id: int | None = None,
     tag: str | None = None,
@@ -225,13 +271,22 @@ def list_concept_insights(
     
     # 应用过滤逻辑
     if only_mine:
-        statement = statement.where(Insight.author_id == current_user.id)
+        if current_user is None:
+            # 未登录用户只看共享的
+            statement = statement.where(Insight.is_shared == True)
+        else:
+            # 已登录用户只看自己的
+            statement = statement.where(Insight.author_id == current_user.id)
     else:
-        # 显示自己的 + 其他人共享的
-        access_filter = (Insight.author_id == current_user.id) | (Insight.is_shared == True)
-        statement = statement.where(access_filter)
-        if author_id:
-            statement = statement.where(Insight.author_id == author_id)
+        if current_user is None:
+            # 未登录用户只看共享的
+            statement = statement.where(Insight.is_shared == True)
+        else:
+            # 已登录用户显示自己的 + 其他人共享的
+            access_filter = (Insight.author_id == current_user.id) | (Insight.is_shared == True)
+            statement = statement.where(access_filter)
+            if author_id:
+                statement = statement.where(Insight.author_id == author_id)
     
     if tag:
         statement = statement.where(Insight.tags.like(f"%{tag}%"))
@@ -244,13 +299,59 @@ def list_concept_insights(
 def get_timeline(
     concept_id: int,
     db: DbDep,
-    current_user: CurrentUserDep,
+    current_user: OptionalCurrentUserDep,
     order: str = Query(default="asc", pattern="^(asc|desc)$"),
     only_mine: bool = Query(default=True, description="Only show insights from current viewer"),
 ) -> list[InsightRead]:
     return list_concept_insights(
         concept_id=concept_id, order=order, db=db, current_user=current_user, only_mine=only_mine
     )
+
+
+@router.get("/insights/{insight_id}", response_model=InsightRead)
+def get_insight(
+    insight_id: int,
+    db: DbDep,
+    current_user: OptionalCurrentUserDep,
+) -> InsightRead:
+    insight = _get_insight_or_404(db, insight_id)
+    if not _can_access_insight(insight, current_user):
+        raise HTTPException(status_code=403, detail="No access to this insight")
+    return _insight_to_read(insight, db)
+
+
+@router.patch("/insights/{insight_id}", response_model=InsightRead)
+def update_insight(
+    insight_id: int,
+    payload: InsightUpdate,
+    db: DbDep,
+    current_user: CurrentUserDep,
+) -> InsightRead:
+    insight = _get_insight_or_404(db, insight_id)
+    _assert_insight_owner(insight, current_user)
+    update_data = payload.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        if key == "tags":
+            # tags 需要转换为逗号分隔的字符串
+            setattr(insight, "tags", ",".join(value) if value else None)
+        else:
+            setattr(insight, key, value)
+    db.commit()
+    db.refresh(insight)
+    return _insight_to_read(insight, db)
+
+
+@router.delete("/insights/{insight_id}")
+def delete_insight(
+    insight_id: int,
+    db: DbDep,
+    current_user: CurrentUserDep,
+):
+    insight = _get_insight_or_404(db, insight_id)
+    _assert_insight_owner(insight, current_user)
+    db.delete(insight)
+    db.commit()
+    return {"detail": "Insight deleted successfully"}
 
 
 @router.get("/insights/diff", response_model=DiffResponse)

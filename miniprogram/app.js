@@ -17,9 +17,9 @@ App({
 
     // 根据环境设置 apiBase
     const baseUrls = {
-      develop: 'https://mapi.catpd.cn/api', // 开发版
-      trial: 'https://mapi.catpd.cn/api', // 体验版
-      release: 'https://mapi.catpd.cn/api' // 正式版
+      develop: 'http://localhost:8000/api', // 开发版
+      trial: 'https://mapi.ly1997.top/api', // 体验版
+      release: 'https://mapi.ly1997.top/api' // 正式版
     }
 
     this.globalData.apiBase = baseUrls[env] || baseUrls.develop

@@ -22,10 +22,6 @@ Page({
   },
 
   loadConcepts() {
-    if (!this.data.isLoggedIn) {
-      this.setData({ loading: false, concepts: [] })
-      return
-    }
     this.setData({ loading: true })
     request('/concepts/all', {
       query: { q: this.data.keyword }

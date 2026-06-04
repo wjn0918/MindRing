@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -7,6 +7,7 @@ class UserCreate(BaseModel):
     openid: str = Field(min_length=1, max_length=64)
     nickname: str | None = Field(default=None, max_length=120)
     avatar_url: str | None = Field(default=None, max_length=500)
+    birth_date: date | str | None = None
 
 
 class UserRead(BaseModel):
@@ -14,10 +15,17 @@ class UserRead(BaseModel):
     openid: str
     nickname: str | None
     avatar_url: str | None
+    birth_date: date | None
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class UserUpdate(BaseModel):
+    nickname: str | None = Field(default=None, max_length=120)
+    avatar_url: str | None = Field(default=None, max_length=500)
+    birth_date: date | str | None = None
 
 
 class LoginResponse(BaseModel):
@@ -29,13 +37,11 @@ class LoginResponse(BaseModel):
 class ConceptCreate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     description: str | None = None
-    creator_id: int
 
 
 class ConceptUpdate(BaseModel):
     description: str | None = None
     is_pinned: bool | None = None
-    operator_id: int
 
 
 class ConceptRead(BaseModel):
@@ -52,13 +58,20 @@ class ConceptRead(BaseModel):
 
 class InsightCreate(BaseModel):
     concept_id: int
-    author_id: int
     content: str = Field(min_length=1)
     mood: str | None = Field(default=None, max_length=80)
     tags: list[str] = Field(default_factory=list)
     is_shared: bool = False
     occurred_at: datetime | None = None
     previous_insight_id: int | None = None
+
+
+class InsightUpdate(BaseModel):
+    content: str | None = Field(default=None, min_length=1)
+    mood: str | None = Field(default=None, max_length=80)
+    tags: list[str] | None = None
+    is_shared: bool | None = None
+    occurred_at: datetime | None = None
 
 
 class InsightRead(BaseModel):

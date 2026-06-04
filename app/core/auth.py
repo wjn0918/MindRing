@@ -49,3 +49,24 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+
+async def get_optional_current_user(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(HTTPBearer(auto_error=False))],
+    db: Annotated[Session, Depends(get_db)],
+) -> User | None:
+    if credentials is None:
+        return None
+    try:
+        payload = jwt.decode(
+            credentials.credentials, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
+        )
+        user_id: int = payload.get("user_id")
+        if user_id is None:
+            return None
+    except JWTError:
+        return None
+    user = db.get(User, user_id)
+    if user is None:
+        return None
+    return user

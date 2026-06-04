@@ -6,7 +6,8 @@
     "pages/calendar/calendar",
     "pages/diff/diff",
     "pages/login/login",
-    "pages/square/square"
+    "pages/square/square",
+    "pages/birthdate/birthdate"
   ],
   "window": {
     "navigationBarTitleText": "微光年轮",

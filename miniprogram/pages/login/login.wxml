@@ -40,6 +40,18 @@
       </view>
     </view>
     
+    <view class="birthdate-section">
+      <view class="birthdate-label">出生年月</view>
+      <view class="birthdate-value">
+        {{user.birth_date || '未设置'}}
+      </view>
+      <view class="birthdate-action">
+        <button class="secondary-button" bindtap="goToSetBirthdate">
+          {{user.birth_date ? '修改' : '设置'}}
+        </button>
+      </view>
+    </view>
+    
     <view class="profile-actions">
       <button class="secondary-button" bindtap="logout">退出登录</button>
       <button class="primary-button" bindtap="loginAnonymously">去首页</button>

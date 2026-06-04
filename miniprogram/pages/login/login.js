@@ -51,9 +51,17 @@ Page({
                   loading: false 
                 })
                 wx.showToast({ title: '登录成功', icon: 'success' })
-                setTimeout(() => {
-                  wx.switchTab({ url: '/pages/index/index' })
-                }, 1500)
+                
+                // 检查是否设置了出生年月
+                if (!response.user.birth_date) {
+                  setTimeout(() => {
+                    wx.navigateTo({ url: '/pages/birthdate/birthdate' })
+                  }, 1500)
+                } else {
+                  setTimeout(() => {
+                    wx.switchTab({ url: '/pages/index/index' })
+                  }, 1500)
+                }
               })
               .catch((error) => {
                 this.setData({ loading: false })
@@ -72,6 +80,10 @@ Page({
         wx.showToast({ title: '需要授权才能登录', icon: 'none' })
       }
     })
+  },
+
+  goToSetBirthdate() {
+    wx.navigateTo({ url: '/pages/birthdate/birthdate' })
   },
 
   loginAnonymously() {

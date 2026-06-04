@@ -43,7 +43,11 @@
           </view>
           <view class="time-mood">
             <text>{{item.dateLabel}}</text>
+            <text wx:if="{{item.age !== null && item.age !== undefined}}" class="age-badge">{{item.age}}岁</text>
             <text wx:if="{{item.mood}}"> · {{item.mood}}</text>
+          </view>
+          <view wx:if="{{isLoggedIn && user.id === item.author_id}}" class="action-menu">
+            <button class="menu-btn" bindtap="showActionMenu" data-insight="{{item}}">⋯</button>
           </view>
         </view>
         <view class="timeline-content">{{item.content}}</view>

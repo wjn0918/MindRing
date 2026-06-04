@@ -3,14 +3,14 @@
     <view class="user-row">
       <view class="user-info-section">
         <view class="eyebrow">MindRing · 我的概念</view>
-        <view class="title">记录你的认知成长</view>
+        <view class="title">把每一次认知微光</view>
+        <view class="title">养成一圈新的年轮</view>
       </view>
       <view class="user-actions">
         <view wx:if="{{isLoggedIn}}" class="user-avatar" bindtap="goToProfile">
           <view wx:if="{{user.avatarUrl}}" class="avatar-img" style="background-image: url({{user.avatarUrl}})"></view>
           <view wx:else class="avatar-placeholder"></view>
         </view>
-        <button wx:else class="login-button" bindtap="goToLogin">登录</button>
       </view>
     </view>
   </view>

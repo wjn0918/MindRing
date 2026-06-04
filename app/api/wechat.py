@@ -1,5 +1,6 @@
 from typing import Annotated
 from sqlalchemy import select
+from datetime import date
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
@@ -19,6 +20,7 @@ class LoginPayload(BaseModel):
     code: str = Field(min_length=1)
     nickname: str | None = Field(default=None, max_length=120)
     avatar_url: str | None = Field(default=None, max_length=500)
+    birth_date: date | str | None = None
 
 
 class ReminderPayload(BaseModel):
@@ -38,12 +40,19 @@ def login(payload: LoginPayload, db: DbDep) -> LoginResponse:
     
     if user is None:
         # 新用户
-        user = User(openid=profile.openid, nickname=nickname, avatar_url=avatar_url)
+        user = User(
+            openid=profile.openid, 
+            nickname=nickname, 
+            avatar_url=avatar_url,
+            birth_date=payload.birth_date
+        )
         db.add(user)
     else:
         # 更新用户信息
         user.nickname = nickname or user.nickname
         user.avatar_url = avatar_url or user.avatar_url
+        if payload.birth_date is not None:
+            user.birth_date = payload.birth_date
     
     db.commit()
     db.refresh(user)

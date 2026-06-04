@@ -1,6 +1,7 @@
 <view class="container insight-page">
   <view class="prompt card">
-    <view class="prompt-title glow-text">此刻你如何理解它？</view>
+    <view wx:if="{{!isEditing}}" class="prompt-title glow-text">此刻你如何理解它？</view>
+    <view wx:else class="prompt-title glow-text">修改这一次的理解</view>
     <view class="prompt-subtitle">像发朋友圈一样写下灵感。可以补录过去某一天的想法。</view>
   </view>
 
@@ -21,6 +22,7 @@
       </view>
       <switch checked="{{isShared}}" color="#f6d78b" bindchange="onSharedChange" />
     </view>
-    <button class="primary-button" loading="{{submitting}}" bindtap="submitInsight">生成一圈年轮</button>
+    <button wx:if="{{!isEditing}}" class="primary-button" loading="{{submitting}}" bindtap="submitInsight">生成一圈年轮</button>
+    <button wx:else class="primary-button" loading="{{submitting}}" bindtap="submitInsight">保存修改</button>
   </view>
 </view>

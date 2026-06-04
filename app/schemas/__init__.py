@@ -6,11 +6,13 @@ from app.schemas.concept import (
     DiffResponse,
     InsightCreate,
     InsightRead,
+    InsightUpdate,
     InsightWithPrevious,
     LoginResponse,
     SharePosterPayload,
     UserCreate,
     UserRead,
+    UserUpdate,
 )
 
 __all__ = [
@@ -21,9 +23,11 @@ __all__ = [
     "DiffResponse",
     "InsightCreate",
     "InsightRead",
+    "InsightUpdate",
     "InsightWithPrevious",
     "LoginResponse",
     "SharePosterPayload",
     "UserCreate",
     "UserRead",
+    "UserUpdate",
 ]

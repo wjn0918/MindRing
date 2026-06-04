@@ -1,0 +1,64 @@
+<view class="container home">
+  <view class="hero card">
+    <view class="hero-top">
+      <view>
+        <view class="eyebrow">MindRing · 微光年轮</view>
+        <view class="title">把每一次认知微光，养成一圈新的年轮。</view>
+      </view>
+    </view>
+    <view class="subtitle">记录概念、回看旧理解、看见自己如何慢慢改变。</view>
+
+    <view class="account-panel">
+      <view class="avatar-wrap">
+        <image wx:if="{{user.avatarUrl}}" class="avatar" src="{{user.avatarUrl}}" mode="aspectFill" />
+        <view wx:else class="avatar avatar-fallback">{{avatarInitial}}</view>
+      </view>
+      <view class="account-copy">
+        <view class="account-label">当前账户</view>
+        <view class="account-name">{{user.nickname || '未登录用户'}}</view>
+        <view class="account-id muted">{{accountDisplayId}}</view>
+      </view>
+      <button class="login-button" bindtap="loginWithWechat">{{user.id === 'demo_user' ? '微信登录' : '切换'}}</button>
+    </view>
+  </view>
+
+  <view class="search-row">
+    <input class="input search-input" placeholder="搜索概念，如 第一性原理" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="loadConcepts" />
+    <button class="search-button" bindtap="loadConcepts">搜</button>
+  </view>
+
+  <view class="create card">
+    <input class="input" placeholder="新概念名称" value="{{newConceptName}}" bindinput="onConceptNameInput" />
+    <textarea class="textarea mini-textarea" placeholder="给它一句温柔的描述（可选）" value="{{newConceptDescription}}" bindinput="onConceptDescriptionInput" />
+    <view class="share-row">
+      <view>
+        <view class="share-title">共享这个概念</view>
+        <view class="share-copy muted">共享后，其他用户也可以围绕它留下自己的年轮记录。</view>
+      </view>
+      <switch checked="{{newConceptShared}}" color="#f6d78b" bindchange="onConceptSharedChange" />
+    </view>
+    <button class="primary-button" loading="{{creating}}" bindtap="createConcept">创建概念</button>
+  </view>
+
+  <view class="section-title">我的概念</view>
+  <view wx:if="{{loading}}" class="empty muted">正在寻找微光…</view>
+  <view wx:elif="{{concepts.length === 0}}" class="empty muted">还没有概念，先写下一个正在萦绕你的词。</view>
+  <view wx:else class="concept-list">
+    <view wx:for="{{concepts}}" wx:key="id" class="concept-card card" data-id="{{item.id}}" bindtap="openConcept">
+      <view class="concept-main">
+        <view class="concept-name">{{item.name}}</view>
+        <view wx:if="{{item.description}}" class="concept-description">{{item.description}}</view>
+        <view wx:else class="concept-description muted">等待第一条年轮记录</view>
+      </view>
+      <view class="concept-badge {{item.is_pinned ? 'pinned' : ''}}">{{item.visibilityLabel}}</view>
+    </view>
+  </view>
+</view>
+
+<view wx:if="{{showPrivacy}}" class="privacy-mask">
+  <view class="privacy-card card">
+    <view class="privacy-title">隐私保护指引</view>
+    <view class="privacy-copy">微光年轮会保存你创建的概念、理解内容、标签、心境和记录时间，用于生成时间轴、对比视图、日历视图和回顾提醒。上线前请在微信公众平台配置正式隐私协议。</view>
+    <button class="primary-button" bindtap="acceptPrivacy">我已了解并同意</button>
+  </view>
+</view>

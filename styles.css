@@ -1,0 +1,287 @@
+:root {
+  color-scheme: dark;
+  --bg: #050712;
+  --text: #f7fbff;
+  --muted: #a7b4d8;
+  --panel: rgba(12, 18, 42, 0.68);
+  --panel-border: rgba(160, 188, 255, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(93, 64, 190, 0.34), transparent 28rem),
+    radial-gradient(circle at 78% 24%, rgba(25, 180, 210, 0.2), transparent 24rem),
+    linear-gradient(145deg, #03040b 0%, #070b1f 44%, #02030a 100%);
+  color: var(--text);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+.square-page {
+  position: relative;
+  min-height: 100vh;
+  padding: clamp(1.25rem, 2vw, 2rem);
+  isolation: isolate;
+}
+
+.hero-panel {
+  position: relative;
+  z-index: 3;
+  width: min(44rem, 100%);
+  padding: clamp(1.25rem, 2.6vw, 2rem);
+  border: 1px solid var(--panel-border);
+  border-radius: 1.75rem;
+  background: linear-gradient(135deg, rgba(10, 16, 38, 0.86), rgba(10, 16, 38, 0.42));
+  box-shadow: 0 1.5rem 5rem rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(18px);
+}
+
+.eyebrow {
+  margin: 0 0 0.7rem;
+  color: #9bdcff;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+h1 {
+  max-width: 14ch;
+  margin: 0;
+  font-size: clamp(2.5rem, 7vw, 6.6rem);
+  line-height: 0.92;
+  letter-spacing: -0.07em;
+}
+
+.hero-copy {
+  max-width: 44rem;
+  margin: 1.1rem 0 0;
+  color: var(--muted);
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  line-height: 1.8;
+}
+
+.cosmos-shell {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  perspective: 90rem;
+}
+
+.cosmos-shell::after {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  content: "";
+  background:
+    radial-gradient(circle at center, transparent 0 54%, rgba(0, 0, 0, 0.36) 100%),
+    linear-gradient(180deg, rgba(2, 3, 10, 0) 42%, rgba(2, 3, 10, 0.55) 100%);
+}
+
+.nebula,
+.star-layer,
+.concept-space {
+  position: absolute;
+  inset: -8%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.nebula {
+  filter: blur(4px);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.nebula-one {
+  background: radial-gradient(circle at 62% 54%, rgba(103, 77, 255, 0.22), transparent 20rem);
+}
+
+.nebula-two {
+  background: radial-gradient(circle at 28% 74%, rgba(42, 218, 234, 0.18), transparent 18rem);
+}
+
+.star-layer {
+  pointer-events: none;
+  background-repeat: repeat;
+  opacity: 0.72;
+}
+
+.star-layer-back {
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.55) 0 1px, transparent 1.4px),
+    radial-gradient(circle, rgba(136, 183, 255, 0.34) 0 1px, transparent 1.3px);
+  background-position: 0 0, 52px 68px;
+  background-size: 118px 118px, 174px 174px;
+  animation: starDrift 58s linear infinite;
+}
+
+.star-layer-front {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.92) 0 1.2px, transparent 1.8px);
+  background-size: 214px 214px;
+  opacity: 0.48;
+  animation: starDrift 34s linear infinite reverse;
+}
+
+.concept-space {
+  z-index: 1;
+  transition: transform 160ms ease-out;
+}
+
+.concept-planet {
+  --size: 8rem;
+  --x: 50%;
+  --y: 50%;
+  --z: 0px;
+  --hue: 210;
+  --duration: 18s;
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--size);
+  height: var(--size);
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  color: var(--text);
+  cursor: pointer;
+  background: transparent;
+  transform: translate3d(-50%, -50%, var(--z));
+  transform-style: preserve-3d;
+  animation: orbitFloat var(--duration) ease-in-out infinite alternate;
+}
+
+.planet-core {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.98) 0 6%, transparent 22%),
+    radial-gradient(circle at 68% 72%, hsla(var(--hue), 95%, 38%, 0.62), transparent 38%),
+    linear-gradient(135deg, hsl(var(--hue), 88%, 63%), hsl(calc(var(--hue) + 44), 76%, 42%));
+  box-shadow:
+    0 0 calc(var(--size) * 0.42) hsla(var(--hue), 90%, 64%, 0.76),
+    inset -1.4rem -1.7rem 2.4rem rgba(4, 5, 18, 0.52),
+    inset 0.7rem 0.7rem 1.5rem rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+  animation: planetSpin calc(var(--duration) * 1.9) linear infinite;
+}
+
+.planet-core::before,
+.planet-core::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+.planet-core::before {
+  inset: 17% -20%;
+  border: 0.18rem solid rgba(255, 255, 255, 0.36);
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-radius: 50%;
+  transform: rotate(-17deg);
+}
+
+.planet-core::after {
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      12deg,
+      rgba(255, 255, 255, 0.12) 0 0.35rem,
+      transparent 0.35rem 1.25rem
+    );
+  mix-blend-mode: soft-light;
+  opacity: 0.54;
+}
+
+.planet-label {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 0.25rem;
+  place-items: center;
+  max-width: 76%;
+  text-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.62);
+}
+
+.planet-name {
+  font-size: clamp(0.86rem, calc(var(--size) / 8), 1.25rem);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  text-align: center;
+}
+
+.planet-heat {
+  border-radius: 999px;
+  padding: 0.15rem 0.48rem;
+  background: rgba(4, 8, 24, 0.46);
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.concept-planet:hover .planet-core,
+.concept-planet:focus-visible .planet-core {
+  box-shadow:
+    0 0 calc(var(--size) * 0.62) hsla(var(--hue), 96%, 70%, 0.9),
+    inset -1.4rem -1.7rem 2.4rem rgba(4, 5, 18, 0.45),
+    inset 0.7rem 0.7rem 1.5rem rgba(255, 255, 255, 0.3);
+}
+
+.concept-planet:focus-visible {
+  outline: 0.16rem solid #fff;
+  outline-offset: 0.35rem;
+}
+
+@keyframes planetSpin {
+  from {
+    rotate: 0deg;
+  }
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes orbitFloat {
+  from {
+    translate: -1.1rem -0.55rem;
+  }
+  to {
+    translate: 1rem 0.8rem;
+  }
+}
+
+@keyframes starDrift {
+  from {
+    background-position: 0 0, 52px 68px;
+  }
+  to {
+    background-position: 240px 320px, 312px 388px;
+  }
+}
+
+@media (max-width: 760px) {
+  .square-page {
+    min-height: 118vh;
+  }
+
+  .hero-panel {
+    width: auto;
+  }
+
+  .concept-space {
+    inset: 5% -18% -18%;
+  }
+}

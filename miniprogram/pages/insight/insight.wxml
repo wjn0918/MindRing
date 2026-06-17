@@ -1,0 +1,28 @@
+<view class="container insight-page">
+  <view class="prompt card">
+    <view wx:if="{{!isEditing}}" class="prompt-title glow-text">此刻你如何理解它？</view>
+    <view wx:else class="prompt-title glow-text">修改这一次的理解</view>
+    <view class="prompt-subtitle">像发朋友圈一样写下灵感。可以补录过去某一天的想法。</view>
+  </view>
+
+  <view class="form card">
+    <textarea class="textarea content" maxlength="4000" placeholder="写下这一次的理解，支持 Markdown 文本…" value="{{content}}" bindinput="onContentInput" />
+    <input class="input" placeholder="心境 / 状态，如 清醒、困惑、笃定" value="{{mood}}" bindinput="onMoodInput" />
+    <input class="input" placeholder="标签，用逗号分隔，如 思维模型,复盘" value="{{tagText}}" bindinput="onTagsInput" />
+    <view class="date-row">
+      <view class="muted">记录日期</view>
+      <picker mode="date" value="{{occurredDate}}" bindchange="onDateChange">
+        <view class="date-pill">{{occurredDate}}</view>
+      </picker>
+    </view>
+    <view class="share-row">
+      <view>
+        <view class="share-title">共享这条理解</view>
+        <view class="share-copy muted">共享后，其他人可以看到这条理解</view>
+      </view>
+      <switch checked="{{isShared}}" color="#f6d78b" bindchange="onSharedChange" />
+    </view>
+    <button wx:if="{{!isEditing}}" class="primary-button" loading="{{submitting}}" bindtap="submitInsight">生成一圈年轮</button>
+    <button wx:else class="primary-button" loading="{{submitting}}" bindtap="submitInsight">保存修改</button>
+  </view>
+</view>

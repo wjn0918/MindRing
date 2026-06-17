@@ -1,0 +1,90 @@
+.square-page .hero {
+  padding: 42rpx 36rpx;
+}
+
+.eyebrow {
+  margin-bottom: 18rpx;
+  color: #f6d78b;
+  font-size: 24rpx;
+  letter-spacing: 3rpx;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.subtitle {
+  margin-top: 20rpx;
+  color: #aebbd0;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+.search-row {
+  display: flex;
+  gap: 16rpx;
+  margin: 28rpx 0;
+}
+
+.search-input {
+  flex: 1;
+}
+
+.search-button {
+  width: 112rpx;
+  height: 88rpx;
+  border-radius: 24rpx;
+  color: #1a2333;
+  background: #f6d78b;
+  font-weight: 700;
+  line-height: 88rpx;
+}
+
+.section-title {
+  margin: 36rpx 4rpx 20rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.empty {
+  padding: 48rpx 12rpx;
+  text-align: center;
+}
+
+.concept-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.concept-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx;
+}
+
+.concept-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.concept-name {
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.concept-description {
+  margin-top: 12rpx;
+  color: #aebbd0;
+  font-size: 26rpx;
+  line-height: 1.6;
+  word-wrap: break-word;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

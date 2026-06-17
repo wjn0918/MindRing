@@ -1,0 +1,61 @@
+<view class="container concept-page">
+  <view class="concept-header card">
+    <view class="ring-visual">
+      <view wx:for="{{ringCircles}}" wx:key="index" class="ring-circle" style="width: {{item}}rpx; height: {{item}}rpx;"></view>
+      <view class="ring-core"></view>
+    </view>
+    <view class="concept-info">
+      <view class="muted">正在生长的概念</view>
+      <view class="concept-title glow-text">{{concept.name || '概念'}}</view>
+      <view class="concept-desc">{{concept.description || '每一次理解，都是一圈新的纹理。'}}</view>
+    </view>
+  </view>
+
+  <view class="action-row">
+    <button class="primary-button action" bindtap="addInsight">添加理解</button>
+    <button class="secondary-button action" bindtap="openDiff" disabled="{{insights.length < 2}}">对比变化</button>
+    <button class="secondary-button action" bindtap="createPoster" disabled="{{insights.length === 0}}">分享海报</button>
+  </view>
+
+  <view class="filter-row card">
+    <view class="filter-label">
+      <view class="filter-title">显示范围</view>
+      <view class="filter-desc muted">{{onlyMine ? '只看自己的理解' : '显示所有人的共享理解'}}</view>
+    </view>
+    <switch checked="{{onlyMine}}" color="#f6d78b" bindchange="onFilterChange" />
+  </view>
+
+  <view class="section-title">时间轴</view>
+  <view wx:if="{{loading}}" class="empty muted">年轮正在浮现…</view>
+  <view wx:elif="{{insights.length === 0}}" class="empty muted">还没有理解，记录下此刻的第一圈微光。</view>
+  <view wx:else class="timeline">
+    <view wx:for="{{insights}}" wx:key="id" class="timeline-item">
+      <view class="timeline-dot"></view>
+      <view class="timeline-card card {{index === 0 ? 'latest' : ''}}">
+        <view class="timeline-meta">
+          <view class="author-info">
+            <view class="author-avatar">
+              <view wx:if="{{item.author_avatar_url}}" class="avatar-img" style="background-image: url({{item.author_avatar_url}})"></view>
+              <view wx:else class="avatar-placeholder"></view>
+            </view>
+            <view class="author-name">{{item.author_nickname || '微光旅人'}}</view>
+            <view wx:if="{{item.is_shared}}" class="shared-badge">共享</view>
+          </view>
+          <view class="time-mood">
+            <text>{{item.dateLabel}}</text>
+            <text wx:if="{{item.age !== null && item.age !== undefined}}" class="age-badge">{{item.age}}岁</text>
+            <text wx:if="{{item.mood}}"> · {{item.mood}}</text>
+          </view>
+          <view wx:if="{{isLoggedIn && user.id === item.author_id}}" class="action-menu">
+            <button class="menu-btn" bindtap="showActionMenu" data-insight="{{item}}">⋯</button>
+          </view>
+        </view>
+        <view class="timeline-content">{{item.content}}</view>
+        <view class="tag-row">
+          <text wx:for="{{item.tags}}" wx:key="*this" class="tag">#{{item}}</text>
+        </view>
+        <view wx:if="{{item.previous_insight_id}}" class="previous muted">已连接上一圈 #{{item.previous_insight_id}}</view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,424 @@
+/* 页面 */
+
+.login-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 80rpx 28rpx 40rpx;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部品牌区 */
+
+.hero-section {
+  text-align: center;
+  margin-bottom: 60rpx;
+}
+
+.logo-icon {
+  width: 160rpx;
+  height: 160rpx;
+  margin: 0 auto 36rpx;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #f6d78b 0%,
+    #f4b86b 50%,
+    #e8a45c 100%
+  );
+  box-shadow: 0 0 80rpx rgba(246, 215, 139, 0.4);
+  position: relative;
+}
+
+.logo-icon::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 80rpx;
+  height: 80rpx;
+
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+
+  transform: translate(-50%, -50%);
+}
+
+.logo-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 40rpx;
+  height: 40rpx;
+
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+
+  transform: translate(-50%, -50%);
+}
+
+.title {
+  font-size: 56rpx;
+  font-weight: 800;
+  color: #f6d78b;
+  margin-bottom: 16rpx;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: #aebbd0;
+  line-height: 1.6;
+}
+
+/* 卡片 */
+
+.login-card,
+.profile-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+  border-radius: 24rpx;
+
+  padding: 40rpx 32rpx;
+  backdrop-filter: blur(20rpx);
+}
+
+.login-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 16rpx;
+}
+
+.login-desc {
+  font-size: 26rpx;
+  color: #aebbd0;
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 40rpx;
+}
+
+/* 按钮 */
+
+button {
+  margin: 0;
+  padding: 0;
+  line-height: normal;
+}
+
+button::after {
+  border: none;
+}
+
+.primary-button,
+.secondary-button {
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.primary-button {
+  background: linear-gradient(
+    135deg,
+    #f6d78b,
+    #f4b86b
+  );
+  color: #1a2333;
+}
+
+.secondary-button {
+  background: rgba(255, 255, 255, 0.06);
+  color: #eef4ff;
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+}
+
+/* 登录按钮 */
+
+.login-btn {
+  margin-bottom: 20rpx;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.guest-btn {
+  margin-bottom: 36rpx;
+}
+
+/* 微信图标 */
+
+.wechat-icon {
+  width: 36rpx;
+  height: 36rpx;
+
+  margin-right: 12rpx;
+
+  background: #1a2333;
+  border-radius: 8rpx;
+  position: relative;
+}
+
+.wechat-icon::before,
+.wechat-icon::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: #07c160;
+}
+
+.wechat-icon::before {
+  width: 20rpx;
+  height: 20rpx;
+  left: 4rpx;
+  top: 6rpx;
+}
+
+.wechat-icon::after {
+  width: 16rpx;
+  height: 16rpx;
+  right: 4rpx;
+  bottom: 4rpx;
+}
+
+/* 提示区 */
+
+.tips {
+  padding: 24rpx;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16rpx;
+}
+
+.tip-item {
+  font-size: 24rpx;
+  color: #aebbd0;
+  line-height: 2;
+}
+
+/* 个人页 */
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 28rpx;
+}
+
+/* 用户信息 */
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    #f6d78b,
+    #f4b86b
+  );
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #eef4ff;
+  margin-bottom: 10rpx;
+}
+
+.user-id {
+  font-size: 22rpx;
+  color: #aebbd0;
+  word-break: break-all;
+}
+
+/* 出生年月 */
+
+.birthdate-section {
+  padding: 28rpx;
+
+  background: rgba(246, 215, 139, 0.05);
+  border: 1rpx solid rgba(246, 215, 139, 0.15);
+  border-radius: 16rpx;
+
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.birthdate-label {
+  font-size: 28rpx;
+  color: #f6d78b;
+  flex-shrink: 0;
+}
+
+.birthdate-value {
+  flex: 1;
+
+  font-size: 28rpx;
+  color: #eef4ff;
+}
+
+.birthdate-action {
+  flex-shrink: 0;
+}
+
+.birthdate-action .secondary-button {
+  width: 120rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  font-size: 24rpx;
+}
+
+/* 底部按钮 */
+
+.profile-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.profile-actions .primary-button,
+.profile-actions .secondary-button {
+  flex: 1;
+}
+
+/* 通用文字 */
+
+.muted {
+  color: #aebbd0;
+}
+
+.user-name-row {
+  display: flex;
+  align-items: flex-start;
+}
+
+.user-name-wrap {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+  padding-right: 34rpx;
+}
+
+.user-name-row .user-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.edit-name-icon {
+  position: absolute;
+  top: -12rpx;
+  right: 0;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  background: rgba(246, 215, 139, 0.14);
+  border: 1rpx solid rgba(246, 215, 139, 0.32);
+}
+
+.edit-name-pencil {
+  position: absolute;
+  left: 9rpx;
+  top: 8rpx;
+  width: 14rpx;
+  height: 5rpx;
+  border-radius: 2rpx;
+  background: #f6d78b;
+  transform: rotate(-38deg);
+}
+
+.edit-name-pencil::after {
+  content: '';
+  position: absolute;
+  right: -5rpx;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-top: 3rpx solid transparent;
+  border-bottom: 3rpx solid transparent;
+  border-left: 5rpx solid #f6d78b;
+}
+
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx;
+  background: rgba(5, 10, 18, 0.72);
+}
+
+.nickname-modal {
+  width: 100%;
+  padding: 36rpx;
+  background: rgba(20, 28, 42, 0.96);
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  border-radius: 24rpx;
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 800;
+  color: #eef4ff;
+  margin-bottom: 12rpx;
+}
+
+.modal-desc {
+  color: #aebbd0;
+  font-size: 26rpx;
+  line-height: 1.6;
+  margin-bottom: 28rpx;
+}
+
+.nickname-input {
+  height: 88rpx;
+  box-sizing: border-box;
+  padding: 0 24rpx;
+  border-radius: 16rpx;
+  color: #eef4ff;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  font-size: 30rpx;
+  margin-bottom: 28rpx;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.modal-actions .primary-button,
+.modal-actions .secondary-button {
+  flex: 1;
+}

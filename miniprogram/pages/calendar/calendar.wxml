@@ -1,0 +1,20 @@
+<view class="container calendar-page">
+  <view class="summary card">
+    <view class="summary-title glow-text">{{totalDays}}</view>
+    <view class="summary-copy">天留下过微光</view>
+    <view class="summary-sub muted">每一个发亮的日子，都是你认知生长的证据。</view>
+  </view>
+
+  <view class="calendar card">
+    <view class="calendar-title">最近记录</view>
+    <view wx:if="{{loading}}" class="empty muted">正在翻找微光…</view>
+    <view wx:elif="{{days.length === 0}}" class="empty muted">还没有记录，去创建第一圈年轮吧。</view>
+    <view wx:else class="day-list">
+      <view wx:for="{{days}}" wx:key="date" class="day-item">
+        <view class="glow-dot level-{{item.level}}"></view>
+        <view class="day-date">{{item.date}}</view>
+        <view class="day-count">{{item.count}} 条理解</view>
+      </view>
+    </view>
+  </view>
+</view>

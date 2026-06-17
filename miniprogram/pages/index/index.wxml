@@ -1,0 +1,82 @@
+<view class="container home">
+  <view class="hero card">
+    <view class="user-row">
+      <view class="user-info-section">
+        <view class="eyebrow">MindRing · 我的概念</view>
+        <view class="title">把每一次认知微光</view>
+        <view class="title">养成一圈新的年轮</view>
+      </view>
+      <view class="user-actions">
+        <view wx:if="{{isLoggedIn}}" class="user-avatar" bindtap="goToProfile">
+          <view wx:if="{{user.avatar_url}}" class="avatar-img" style="background-image: url({{user.avatar_url}})"></view>
+          <view wx:else class="avatar-placeholder"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作按钮区 -->
+  <view class="action-buttons">
+    <button class="action-btn search-btn" bindtap="openSearch">
+      <view class="btn-icon search-icon"></view>
+      <text>搜索概念</text>
+    </button>
+    <button class="action-btn create-btn" bindtap="openCreate">
+      <view class="btn-icon plus-icon"></view>
+      <text>创建概念</text>
+    </button>
+  </view>
+
+  <view class="section-title">我的概念</view>
+  <view wx:if="{{loading}}" class="empty muted">正在寻找微光...</view>
+  <view wx:elif="{{concepts.length === 0}}" class="empty muted">还没有概念，先写下一个正在萦绕你的词。</view>
+  <view wx:else class="concept-list">
+    <view wx:for="{{concepts}}" wx:key="id" class="concept-card card" data-id="{{item.id}}" bindtap="openConcept">
+      <view class="concept-main">
+        <view class="concept-name">{{item.name}}</view>
+        <view wx:if="{{item.description}}" class="concept-description">{{item.description}}</view>
+        <view wx:else class="concept-description muted">等待第一条年轮记录</view>
+      </view>
+    </view>
+  </view>
+</view>
+
+
+<!-- 搜索弹窗 -->
+<view wx:if="{{showSearch}}" class="modal-mask" bindtap="closeSearch">
+  <view class="modal-content card" catchtap="stopPropagation">
+    <view class="modal-header">
+      <view class="modal-title">搜索概念</view>
+      <view class="close-btn" bindtap="closeSearch">✕</view>
+    </view>
+    <view class="modal-body">
+      <view class="search-modal-row">
+        <input class="input search-modal-input" placeholder="搜索概念，如 第一性原理" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="doSearch" />
+        <button class="search-modal-button" bindtap="doSearch" loading="{{loading}}">搜索</button>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 创建概念弹窗 -->
+<view wx:if="{{showCreate}}" class="modal-mask" bindtap="closeCreate">
+  <view class="modal-content card" catchtap="stopPropagation">
+    <view class="modal-header">
+      <view class="modal-title">创建新概念</view>
+      <view class="close-btn" bindtap="closeCreate">✕</view>
+    </view>
+    <view class="modal-body">
+      <input class="input" placeholder="新概念名称" value="{{newConceptName}}" bindinput="onConceptNameInput" />
+      <textarea class="textarea mini-textarea" placeholder="给它一句温柔的描述（可选）" value="{{newConceptDescription}}" bindinput="onConceptDescriptionInput" />
+      <button class="primary-button" loading="{{creating}}" bindtap="createConcept">创建概念</button>
+    </view>
+  </view>
+</view>
+
+<view wx:if="{{showPrivacy}}" class="privacy-mask">
+  <view class="privacy-card card">
+    <view class="privacy-title">隐私保护指引</view>
+    <view class="privacy-copy">微光年轮会保存你创建的概念、理解内容、标签、心境和记录时间，用于生成时间轴、对比视图、日历视图和回顾提醒。上线前请在微信公众平台配置正式隐私协议。</view>
+    <button class="primary-button" bindtap="acceptPrivacy">我已了解并同意</button>
+  </view>
+</view>

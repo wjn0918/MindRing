@@ -1,0 +1,71 @@
+.selector,
+.changes,
+.diff-card {
+  padding: 28rpx;
+}
+
+.selector-title,
+.changes-title,
+.diff-title {
+  margin-bottom: 18rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.picker-row {
+  margin-bottom: 18rpx;
+  padding: 24rpx;
+  border-radius: 22rpx;
+  color: #dfe8f9;
+  background: rgba(255, 255, 255, 0.06);
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.diff-grid {
+  display: grid;
+  gap: 20rpx;
+  margin: 24rpx 0;
+}
+
+.diff-content {
+  color: #eef4ff;
+  font-size: 26rpx;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.change-block {
+  margin-top: 24rpx;
+}
+
+.change-label {
+  display: inline-flex;
+  margin-bottom: 14rpx;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  color: #123324;
+  background: #8be0b5;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.change-label.removed {
+  color: #3a1620;
+  background: #f1a2ad;
+}
+
+.change-line {
+  margin-top: 10rpx;
+  color: #9ae6b4;
+  font-size: 26rpx;
+  line-height: 1.7;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.removed-line {
+  color: #feb2b2;
+}

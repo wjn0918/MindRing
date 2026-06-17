@@ -1,0 +1,25 @@
+<view class="container">
+  <view class="card">
+    <view class="title">设置你的出生年月</view>
+    <view class="desc">
+      让我们帮你记录理解时的年龄
+    </view>
+
+    <view class="picker-wrap">
+      <picker 
+        mode="date" 
+        value="{{birthDate}}" 
+        bindchange="onDateChange"
+        fields="day"
+      >
+        <view class="date-picker">
+          {{birthDate || '点击选择出生年月'}}
+        </view>
+      </picker>
+    </view>
+
+    <button class="primary-button" bindtap="saveBirthDate" loading="{{saving}}">
+      保存
+    </button>
+  </view>
+</view>

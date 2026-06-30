@@ -312,6 +312,28 @@ def get_timeline(
     )
 
 
+@router.get("/insights/diff", response_model=DiffResponse)
+def diff_insights(
+    left_id: int, right_id: int, db: DbDep, current_user: CurrentUserDep
+) -> DiffResponse:
+    left = db.get(Insight, left_id)
+    right = db.get(Insight, right_id)
+    if left is None or right is None:
+        raise HTTPException(status_code=404, detail="Insight not found")
+    if left.concept_id != right.concept_id:
+        raise HTTPException(status_code=400, detail="Insights belong to different concepts")
+    if not _can_access_insight(left, current_user) or not _can_access_insight(right, current_user):
+        raise HTTPException(status_code=403, detail="No access to one of the insights")
+
+    diff = list(ndiff(left.content.splitlines(), right.content.splitlines()))
+    return DiffResponse(
+        left=_insight_to_read(left, db),
+        right=_insight_to_read(right, db),
+        added_lines=[line[2:] for line in diff if line.startswith("+ ")],
+        removed_lines=[line[2:] for line in diff if line.startswith("- ")],
+    )
+
+
 @router.get("/insights/{insight_id}", response_model=InsightRead)
 def get_insight(
     insight_id: int,
@@ -356,28 +378,6 @@ def delete_insight(
     db.delete(insight)
     db.commit()
     return {"detail": "Insight deleted successfully"}
-
-
-@router.get("/insights/diff", response_model=DiffResponse)
-def diff_insights(
-    left_id: int, right_id: int, db: DbDep, current_user: CurrentUserDep
-) -> DiffResponse:
-    left = db.get(Insight, left_id)
-    right = db.get(Insight, right_id)
-    if left is None or right is None:
-        raise HTTPException(status_code=404, detail="Insight not found")
-    if left.concept_id != right.concept_id:
-        raise HTTPException(status_code=400, detail="Insights belong to different concepts")
-    if not _can_access_insight(left, current_user) or not _can_access_insight(right, current_user):
-        raise HTTPException(status_code=403, detail="No access to one of the insights")
-
-    diff = list(ndiff(left.content.splitlines(), right.content.splitlines()))
-    return DiffResponse(
-        left=_insight_to_read(left, db),
-        right=_insight_to_read(right, db),
-        added_lines=[line[2:] for line in diff if line.startswith("+ ")],
-        removed_lines=[line[2:] for line in diff if line.startswith("- ")],
-    )
 
 
 @router.get("/calendar", response_model=list[CalendarDay])
